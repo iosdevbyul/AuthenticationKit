@@ -54,7 +54,7 @@ public struct MockAuthenticationRepository: AuthenticationRepository {
     }
 
     public func logout() async throws {
-        fatalError("Not implemented")
+        // Mock에서는 서버 요청 없이 성공으로 처리
     }
 
     public func withdraw() async throws {
