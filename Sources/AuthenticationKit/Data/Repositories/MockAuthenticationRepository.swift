@@ -67,4 +67,12 @@ public struct MockAuthenticationRepository: AuthenticationRepository {
             throw AuthenticationError.withdrawalFailed
         }
     }
+    
+    public func forgotPassword(email: String) async throws {
+        guard !email.isEmpty else {
+            throw AuthenticationError.invalidInput
+        }
+
+        // Mock에서는 비밀번호 재설정 요청 성공으로 처리
+    }
 }
