@@ -9,4 +9,5 @@ import Foundation
 
 public enum AuthenticationError: Error, Equatable, Sendable {
     case invalidCredentials
+    case invalidInput
 }

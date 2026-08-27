@@ -37,7 +37,20 @@ public struct MockAuthenticationRepository: AuthenticationRepository {
         email: String,
         password: String
     ) async throws -> Session {
-        fatalError("Not implemented")
+        guard !email.isEmpty, !password.isEmpty else {
+            throw AuthenticationError.invalidInput
+        }
+
+        let user = User(
+            id: "mock-user-\(email)",
+            email: email
+        )
+
+        return Session(
+            user: user,
+            accessToken: "mock-access-token-\(email)",
+            refreshToken: "mock-refresh-token-\(email)"
+        )
     }
 
     public func logout() async throws {
