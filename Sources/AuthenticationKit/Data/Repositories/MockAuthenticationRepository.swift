@@ -10,8 +10,13 @@ import Foundation
 public struct MockAuthenticationRepository: AuthenticationRepository {
     private let testEmail = "test@test.com"
     private let testPassword = "1234"
-
-    public init() {}
+    private let shouldFailWithdrawal: Bool
+    
+    public init(
+        shouldFailWithdrawal: Bool = false
+    ) {
+        self.shouldFailWithdrawal = shouldFailWithdrawal
+    }
 
     public func login(
         email: String,
@@ -58,6 +63,8 @@ public struct MockAuthenticationRepository: AuthenticationRepository {
     }
 
     public func withdraw() async throws {
-        fatalError("Not implemented")
+        if shouldFailWithdrawal {
+            throw AuthenticationError.withdrawalFailed
+        }
     }
 }
