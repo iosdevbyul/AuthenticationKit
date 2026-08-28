@@ -14,12 +14,20 @@ let package = Package(
         ),
     ],
     dependencies: [
-        // 여기에는 다음 단계에서 NetworkKit을 추가
+        .package(
+            url: "https://github.com/iosdevbyul/TrisNetworkKit.git",
+            branch: "main"
+        )
     ],
     targets: [
         .target(
             name: "AuthenticationKit",
-            dependencies: []
+            dependencies: [
+                .product(
+                    name: "NetworkKit",
+                    package: "TrisNetworkKit"
+                )
+            ]
         ),
         .testTarget(
             name: "AuthenticationKitTests",

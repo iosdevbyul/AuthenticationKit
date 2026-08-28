@@ -1,0 +1,15 @@
+{
+  "originHash" : "6e128067216ab53c3a526734e57491b37a0dd0447940f68f20549f58fb67b025",
+  "pins" : [
+    {
+      "identity" : "trisnetworkkit",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/iosdevbyul/TrisNetworkKit.git",
+      "state" : {
+        "branch" : "main",
+        "revision" : "6d3cd099787c17771d805bde6912f8bd9cff9994"
+      }
+    }
+  ],
+  "version" : 3
+}
