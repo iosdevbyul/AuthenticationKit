@@ -100,4 +100,23 @@ struct NetworkAuthenticationRepositoryTests {
         #expect(json["email"] as? String == "test@test.com")
         #expect(json["password"] as? String == "1234")
     }
+    
+    @Test
+    func withdrawSendsCorrectEndpoint() async throws {
+        let networkClient = MockNetworkClient()
+
+        networkClient.response = EmptyResponse()
+
+        let repository = NetworkAuthenticationRepository(
+            networkClient: networkClient
+        )
+
+        try await repository.withdraw()
+
+        let endpoint = try #require(networkClient.requestedEndpoint)
+
+        #expect(endpoint.path == "/auth/withdraw")
+        #expect(endpoint.method == .delete)
+        #expect(endpoint.body == nil)
+    }
 }
