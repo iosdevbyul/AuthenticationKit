@@ -72,6 +72,13 @@ public final class NetworkAuthenticationRepository: AuthenticationRepository, Se
     public func forgotPassword(
         email: String
     ) async throws {
-        fatalError("Not implemented")
+        let endpoint = AuthenticationEndpoint.forgotPassword(
+            email: email
+        )
+
+        try await networkClient.request(
+            endpoint: endpoint,
+            responseType: EmptyResponse.self
+        )
     }
 }

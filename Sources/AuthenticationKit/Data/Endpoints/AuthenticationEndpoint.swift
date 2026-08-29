@@ -23,6 +23,7 @@ public enum AuthenticationEndpoint {
     
     case withdraw
     
+    case forgotPassword(email: String)
 }
 
 extension AuthenticationEndpoint: Endpoint {
@@ -37,12 +38,14 @@ extension AuthenticationEndpoint: Endpoint {
             return "/auth/logout"
         case .withdraw:
             return "/auth/withdraw"
+        case .forgotPassword:
+            return "/auth/forgot-password"
         }
     }
 
     public var method: HTTPMethod {
         switch self {
-        case .login, .signUp, .logout:
+        case .login, .signUp, .logout, .forgotPassword:
             return .post
         case .withdraw:
             return .delete
@@ -79,6 +82,13 @@ extension AuthenticationEndpoint: Endpoint {
             
         case .logout, .withdraw:
             return nil
+            
+        case let .forgotPassword(email):
+            let body = ForgotPasswordRequestDTO(
+                email: email
+            )
+
+            return try? JSONEncoder().encode(body)
         }
     }
 }
