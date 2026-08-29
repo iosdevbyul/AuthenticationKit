@@ -37,7 +37,18 @@ public final class NetworkAuthenticationRepository: AuthenticationRepository, Se
         email: String,
         password: String
     ) async throws -> Session {
-        fatalError("Not implemented")
+
+        let endpoint = AuthenticationEndpoint.signUp(
+            email: email,
+            password: password
+        )
+
+        let response = try await networkClient.request(
+            endpoint: endpoint,
+            responseType: SignUpResponseDTO.self
+        )
+
+        return response.toDomain()
     }
 
     public func logout() async throws {

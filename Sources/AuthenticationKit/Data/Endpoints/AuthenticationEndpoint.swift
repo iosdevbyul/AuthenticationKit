@@ -13,6 +13,11 @@ public enum AuthenticationEndpoint {
         email: String,
         password: String
     )
+    
+    case signUp(
+        email: String,
+        password: String
+    )
 }
 
 extension AuthenticationEndpoint: Endpoint {
@@ -21,12 +26,14 @@ extension AuthenticationEndpoint: Endpoint {
         switch self {
         case .login:
             return "/auth/login"
+        case .signUp:
+            return "/auth/signup"
         }
     }
 
     public var method: HTTPMethod {
         switch self {
-        case .login:
+        case .login, .signUp:
             return .post
         }
     }
@@ -45,6 +52,14 @@ extension AuthenticationEndpoint: Endpoint {
         switch self {
         case let .login(email, password):
             let body = LoginRequestDTO(
+                email: email,
+                password: password
+            )
+
+            return try? JSONEncoder().encode(body)
+            
+        case let .signUp(email, password):
+            let body = SignUpRequestDTO(
                 email: email,
                 password: password
             )
