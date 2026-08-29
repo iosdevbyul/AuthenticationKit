@@ -61,7 +61,12 @@ public final class NetworkAuthenticationRepository: AuthenticationRepository, Se
     }
 
     public func withdraw() async throws {
-        fatalError("Not implemented")
+        let endpoint = AuthenticationEndpoint.withdraw
+
+        try await networkClient.request(
+            endpoint: endpoint,
+            responseType: EmptyResponse.self
+        )
     }
 
     public func forgotPassword(

@@ -20,6 +20,9 @@ public enum AuthenticationEndpoint {
     )
     
     case logout
+    
+    case withdraw
+    
 }
 
 extension AuthenticationEndpoint: Endpoint {
@@ -32,6 +35,8 @@ extension AuthenticationEndpoint: Endpoint {
             return "/auth/signup"
         case .logout:
             return "/auth/logout"
+        case .withdraw:
+            return "/auth/withdraw"
         }
     }
 
@@ -39,6 +44,8 @@ extension AuthenticationEndpoint: Endpoint {
         switch self {
         case .login, .signUp, .logout:
             return .post
+        case .withdraw:
+            return .delete
         }
     }
 
@@ -70,7 +77,7 @@ extension AuthenticationEndpoint: Endpoint {
 
             return try? JSONEncoder().encode(body)
             
-        case .logout:
+        case .logout, .withdraw:
             return nil
         }
     }
