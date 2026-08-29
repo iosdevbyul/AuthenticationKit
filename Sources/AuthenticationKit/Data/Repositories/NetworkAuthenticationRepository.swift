@@ -52,7 +52,12 @@ public final class NetworkAuthenticationRepository: AuthenticationRepository, Se
     }
 
     public func logout() async throws {
-        fatalError("Not implemented")
+        let endpoint = AuthenticationEndpoint.logout
+
+        try await networkClient.request(
+            endpoint: endpoint,
+            responseType: EmptyResponse.self
+        )
     }
 
     public func withdraw() async throws {

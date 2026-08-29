@@ -18,6 +18,8 @@ public enum AuthenticationEndpoint {
         email: String,
         password: String
     )
+    
+    case logout
 }
 
 extension AuthenticationEndpoint: Endpoint {
@@ -28,12 +30,14 @@ extension AuthenticationEndpoint: Endpoint {
             return "/auth/login"
         case .signUp:
             return "/auth/signup"
+        case .logout:
+            return "/auth/logout"
         }
     }
 
     public var method: HTTPMethod {
         switch self {
-        case .login, .signUp:
+        case .login, .signUp, .logout:
             return .post
         }
     }
@@ -65,6 +69,9 @@ extension AuthenticationEndpoint: Endpoint {
             )
 
             return try? JSONEncoder().encode(body)
+            
+        case .logout:
+            return nil
         }
     }
 }
