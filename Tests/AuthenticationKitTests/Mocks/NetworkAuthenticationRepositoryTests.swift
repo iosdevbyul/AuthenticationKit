@@ -119,4 +119,62 @@ struct NetworkAuthenticationRepositoryTests {
         #expect(endpoint.method == .delete)
         #expect(endpoint.body == nil)
     }
+    
+    // MARK: - Forgot Password
+
+    @Test
+    func forgotPasswordCreatesCorrectEndpoint() async throws {
+        let networkClient = MockNetworkClient()
+
+        networkClient.response = EmptyResponse()
+
+        let repository = NetworkAuthenticationRepository(
+            networkClient: networkClient
+        )
+
+        try await repository.forgotPassword(
+            email: "forgot@test.com"
+        )
+
+        let endpoint = try #require(
+            networkClient.requestedEndpoint
+        )
+
+        #expect(endpoint.path == "/auth/forgot-password")
+        #expect(endpoint.method == .post)
+        #expect(
+            endpoint.headers["Content-Type"] == "application/json"
+        )
+    }
+    
+    @Test
+    func forgotPasswordEndpointContainsEmail() async throws {
+        let networkClient = MockNetworkClient()
+
+        networkClient.response = EmptyResponse()
+
+        let repository = NetworkAuthenticationRepository(
+            networkClient: networkClient
+        )
+
+        try await repository.forgotPassword(
+            email: "forgot@test.com"
+        )
+
+        let endpoint = try #require(
+            networkClient.requestedEndpoint
+        )
+
+        let body = try #require(endpoint.body)
+
+        let json = try #require(
+            JSONSerialization.jsonObject(
+                with: body
+            ) as? [String: Any]
+        )
+
+        #expect(
+            json["email"] as? String == "forgot@test.com"
+        )
+    }
 }
