@@ -7,9 +7,12 @@
 
 import Foundation
 
-public struct Session: Equatable, Sendable {
+public struct Session: Equatable, Codable, Sendable {
+
     public let user: User
+
     public let accessToken: String
+
     public let refreshToken: String?
 
     public init(

@@ -1,8 +1,10 @@
 
 import Foundation
 
-public struct User: Equatable, Sendable {
+public struct User: Equatable, Codable, Sendable {
+
     public let id: String
+
     public let email: String
 
     public init(
