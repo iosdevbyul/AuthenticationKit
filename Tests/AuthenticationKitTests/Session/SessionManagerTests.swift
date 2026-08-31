@@ -76,4 +76,60 @@ struct SessionManagerTests {
         #expect(manager.currentSession == nil)
         #expect(!manager.isAuthenticated)
     }
+    
+    @Test
+        func sessionManagerProvidesAccessTokenFromCurrentSession() throws {
+            let tokenStorage = MockTokenStorage()
+
+            let sessionManager = SessionManager(
+                tokenStorage: tokenStorage
+            )
+
+            let session = Session(
+                user: User(
+                    id: "user-1",
+                    email: "test@test.com"
+                ),
+                accessToken: "access-token",
+                refreshToken: "refresh-token"
+            )
+
+            try sessionManager.setSession(session)
+
+            #expect(sessionManager.accessToken == "access-token")
+        }
+
+        @Test
+        func sessionManagerProvidesNilAccessTokenWithoutSession() {
+            let tokenStorage = MockTokenStorage()
+
+            let sessionManager = SessionManager(
+                tokenStorage: tokenStorage
+            )
+
+            #expect(sessionManager.accessToken == nil)
+        }
+
+        @Test
+        func sessionManagerProvidesNilAccessTokenAfterClearSession() throws {
+            let tokenStorage = MockTokenStorage()
+
+            let sessionManager = SessionManager(
+                tokenStorage: tokenStorage
+            )
+
+            let session = Session(
+                user: User(
+                    id: "user-1",
+                    email: "test@test.com"
+                ),
+                accessToken: "access-token",
+                refreshToken: "refresh-token"
+            )
+
+            try sessionManager.setSession(session)
+            try sessionManager.clearSession()
+
+            #expect(sessionManager.accessToken == nil)
+        }
 }
