@@ -37,6 +37,7 @@ struct LogoutUseCaseTests {
 
         #expect(sessionManager.currentSession == nil)
         #expect(!sessionManager.isAuthenticated)
+        #expect(sessionManager.accessToken == nil)
     }
     
     @Test
