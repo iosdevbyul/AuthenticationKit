@@ -15,18 +15,22 @@ public struct LoginView: View {
     private let onSignUp: (() -> Void)?
     private let onForgotPassword: (() -> Void)?
 
-//    @State private var isPasswordVisible = false
+    private let onLoginSuccess: ((Session) -> Void)?
 
     public init(
         viewModel: LoginViewModel,
         theme: AuthenticationTheme = .default,
+        onLoginSuccess: ((Session) -> Void)? = nil,
         onSignUp: (() -> Void)? = nil,
         onForgotPassword: (() -> Void)? = nil
     ) {
         self.viewModel = viewModel
         self.theme = theme
+        self.onLoginSuccess = onLoginSuccess
         self.onSignUp = onSignUp
         self.onForgotPassword = onForgotPassword
+
+        viewModel.onLoginSuccess = onLoginSuccess
     }
 
     public var body: some View {
@@ -43,7 +47,6 @@ public struct LoginView: View {
                         theme: theme
                     )
 
-//                    passwordField
                     AuthenticationSecureField(
                         title: "비밀번호",
                         placeholder: "비밀번호를 입력해주세요.",
@@ -92,52 +95,6 @@ public struct LoginView: View {
         }
         .padding(.top, 32)
     }
-
-//    private var passwordField: some View {
-//        VStack(alignment: .leading, spacing: 8) {
-//            Text("비밀번호")
-//                .font(.subheadline)
-//                .foregroundColor(theme.text)
-//
-//            HStack(spacing: 8) {
-//                Group {
-//                    if isPasswordVisible {
-//                        TextField(
-//                            "비밀번호를 입력해주세요.",
-//                            text: $viewModel.password
-//                        )
-//                    } else {
-//                        SecureField(
-//                            "비밀번호를 입력해주세요.",
-//                            text: $viewModel.password
-//                        )
-//                    }
-//                }
-//                .foregroundColor(theme.textField.text)
-//
-//                Button {
-//                    isPasswordVisible.toggle()
-//                } label: {
-//                    Image(
-//                        systemName: isPasswordVisible
-//                            ? "eye.slash"
-//                            : "eye"
-//                    )
-//                    .foregroundColor(theme.secondaryText)
-//                }
-//            }
-//            .padding(.horizontal, 16)
-//            .frame(height: 52)
-//            .background(theme.textField.background)
-//            .overlay(
-//                RoundedRectangle(cornerRadius: 10)
-//                    .stroke(
-//                        theme.textField.border,
-//                        lineWidth: 1
-//                    )
-//            )
-//        }
-//    }
 
     private var forgotPasswordButton: some View {
         HStack {

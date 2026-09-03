@@ -15,6 +15,8 @@ public final class LoginViewModel: ObservableObject {
     @Published public private(set) var isLoading = false
     @Published public private(set) var errorMessage: String?
 
+    public var onLoginSuccess: ((Session) -> Void)?
+
     private let loginUseCase: LoginUseCase
 
     public init(loginUseCase: LoginUseCase) {
@@ -36,12 +38,13 @@ public final class LoginViewModel: ObservableObject {
 
         Task {
             do {
-                _ = try await loginUseCase.execute(
+                let session = try await loginUseCase.execute(
                     email: email,
                     password: password
                 )
 
                 isLoading = false
+                onLoginSuccess?(session)
             } catch {
                 isLoading = false
                 errorMessage = error.localizedDescription
