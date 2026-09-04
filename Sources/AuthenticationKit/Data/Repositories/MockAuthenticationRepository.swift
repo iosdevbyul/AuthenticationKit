@@ -11,11 +11,14 @@ public struct MockAuthenticationRepository: AuthenticationRepository {
     private let testEmail = "test@test.com"
     private let testPassword = "1234"
     private let shouldFailWithdrawal: Bool
+    private let shouldFailSignUp: Bool
     
     public init(
-        shouldFailWithdrawal: Bool = false
+        shouldFailWithdrawal: Bool = false,
+        shouldFailSignUp: Bool = false
     ) {
         self.shouldFailWithdrawal = shouldFailWithdrawal
+        self.shouldFailSignUp = shouldFailSignUp
     }
 
     public func login(
@@ -42,6 +45,10 @@ public struct MockAuthenticationRepository: AuthenticationRepository {
         email: String,
         password: String
     ) async throws -> Session {
+        if shouldFailSignUp {
+            throw AuthenticationError.invalidInput
+        }
+        
         guard !email.isEmpty, !password.isEmpty else {
             throw AuthenticationError.invalidInput
         }
