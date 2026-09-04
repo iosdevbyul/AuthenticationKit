@@ -12,13 +12,16 @@ public struct MockAuthenticationRepository: AuthenticationRepository {
     private let testPassword = "1234"
     private let shouldFailWithdrawal: Bool
     private let shouldFailSignUp: Bool
+    private let shouldFailForgotPassword: Bool
     
     public init(
         shouldFailWithdrawal: Bool = false,
-        shouldFailSignUp: Bool = false
+        shouldFailSignUp: Bool = false,
+        shouldFailForgotPassword: Bool = false
     ) {
         self.shouldFailWithdrawal = shouldFailWithdrawal
         self.shouldFailSignUp = shouldFailSignUp
+        self.shouldFailForgotPassword = shouldFailForgotPassword
     }
 
     public func login(
@@ -76,10 +79,12 @@ public struct MockAuthenticationRepository: AuthenticationRepository {
     }
     
     public func forgotPassword(email: String) async throws {
-        guard !email.isEmpty else {
+        if shouldFailForgotPassword {
             throw AuthenticationError.invalidInput
         }
 
-        // Mock에서는 비밀번호 재설정 요청 성공으로 처리
+        guard !email.isEmpty else {
+            throw AuthenticationError.invalidInput
+        }
     }
 }
