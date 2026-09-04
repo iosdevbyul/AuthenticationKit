@@ -9,6 +9,10 @@ import Foundation
 import NetworkKit
 
 public final class NetworkAuthenticationRepository: AuthenticationRepository, Sendable {
+    public func changePassword(currentPassword: String, newPassword: String) async throws {
+        
+    }
+    
     private let networkClient: any NetworkClient
 
     public init(networkClient: any NetworkClient) {

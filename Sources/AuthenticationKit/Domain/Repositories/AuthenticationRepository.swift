@@ -23,4 +23,9 @@ public protocol AuthenticationRepository: Sendable {
     func withdraw() async throws
     
     func forgotPassword(email: String) async throws
+    
+    func changePassword(
+        currentPassword: String,
+        newPassword: String
+    ) async throws
 }

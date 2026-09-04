@@ -8,20 +8,24 @@
 import Foundation
 
 public struct MockAuthenticationRepository: AuthenticationRepository {
+
     private let testEmail = "test@test.com"
     private let testPassword = "1234"
     private let shouldFailWithdrawal: Bool
     private let shouldFailSignUp: Bool
     private let shouldFailForgotPassword: Bool
+    private let shouldFailChangePassword: Bool
     
     public init(
         shouldFailWithdrawal: Bool = false,
         shouldFailSignUp: Bool = false,
-        shouldFailForgotPassword: Bool = false
+        shouldFailForgotPassword: Bool = false,
+        shouldFailChangePassword: Bool = false
     ) {
         self.shouldFailWithdrawal = shouldFailWithdrawal
         self.shouldFailSignUp = shouldFailSignUp
         self.shouldFailForgotPassword = shouldFailForgotPassword
+        self.shouldFailChangePassword = shouldFailChangePassword
     }
 
     public func login(
@@ -84,6 +88,15 @@ public struct MockAuthenticationRepository: AuthenticationRepository {
         }
 
         guard !email.isEmpty else {
+            throw AuthenticationError.invalidInput
+        }
+    }
+    
+    public func changePassword(
+        currentPassword: String,
+        newPassword: String
+    ) async throws {
+        if shouldFailChangePassword {
             throw AuthenticationError.invalidInput
         }
     }
