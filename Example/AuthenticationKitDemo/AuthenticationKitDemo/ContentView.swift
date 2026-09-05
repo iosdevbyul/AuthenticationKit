@@ -60,6 +60,10 @@ struct ContentView: View {
                         )
                     )
                 }
+                
+                NavigationLink("AuthenticationService") {
+                    AuthenticationServiceDemoView()
+                }
             }
             .navigationTitle("AuthenticationKit Demo")
         }

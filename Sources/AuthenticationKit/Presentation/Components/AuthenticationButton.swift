@@ -34,7 +34,10 @@ public struct AuthenticationButton: View {
     }
 
     public var body: some View {
-        Button(action: action) {
+        Button {
+            print("AuthenticationButton tapped")
+            action()
+        } label: {
             ZStack {
                 Text(title)
                     .font(.headline)

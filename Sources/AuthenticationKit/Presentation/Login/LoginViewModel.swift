@@ -24,6 +24,7 @@ public final class LoginViewModel: ObservableObject {
     }
 
     public func login() {
+        print("LoginViewModel.login() called")
         guard !email.isEmpty, !password.isEmpty else {
             errorMessage = "이메일과 비밀번호를 입력해주세요."
             return
@@ -32,7 +33,7 @@ public final class LoginViewModel: ObservableObject {
         guard !isLoading else {
             return
         }
-
+        print("LoginViewModel.login() isLoading")
         isLoading = true
         errorMessage = nil
 
@@ -42,10 +43,11 @@ public final class LoginViewModel: ObservableObject {
                     email: email,
                     password: password
                 )
-
+                print("LoginViewModel.login() Task")
                 isLoading = false
                 onLoginSuccess?(session)
             } catch {
+                print("LoginViewModel.login() errorMessage")
                 isLoading = false
                 errorMessage = error.localizedDescription
             }
