@@ -6,8 +6,11 @@
 //
 
 import Foundation
+import NetworkKit
 
 public final class AuthenticationService: @unchecked Sendable {
+
+    public static let shared = AuthenticationService()
 
     private let loginUseCase: LoginUseCase
     private let signUpUseCase: SignUpUseCase
@@ -22,6 +25,53 @@ public final class AuthenticationService: @unchecked Sendable {
 
     public var isAuthenticated: Bool {
         sessionManager.isAuthenticated
+    }
+
+    private init() {
+        guard let baseURL = AuthenticationConfiguration.shared.baseURL else {
+            fatalError(
+                "AuthenticationConfiguration must be configured before using AuthenticationService."
+            )
+        }
+
+        let networkConfiguration = NetworkConfiguration(
+            baseURL: baseURL
+        )
+
+        let networkClient = URLSessionNetworkClient(
+            configuration: networkConfiguration
+        )
+
+        let repository = NetworkAuthenticationRepository(
+            networkClient: networkClient
+        )
+
+        let tokenStorage = DefaultTokenStorage()
+
+        let sessionManager = SessionManager(
+            tokenStorage: tokenStorage
+        )
+
+        self.repository = repository
+        self.sessionManager = sessionManager
+
+        self.loginUseCase = LoginUseCase(
+            repository: repository,
+            sessionManager: sessionManager
+        )
+
+        self.signUpUseCase = SignUpUseCase(
+            repository: repository,
+            sessionManager: sessionManager
+        )
+
+        self.forgotPasswordUseCase = ForgotPasswordUseCase(
+            repository: repository
+        )
+
+        self.changePasswordUseCase = ChangePasswordUseCase(
+            repository: repository
+        )
     }
 
     public init(
