@@ -15,7 +15,7 @@ public struct SignUpView: View {
     private let onSignUpSuccess: ((Session) -> Void)?
 
     public init(
-        viewModel: SignUpViewModel,
+        viewModel: SignUpViewModel = SignUpViewModel(),
         theme: AuthenticationTheme = .default,
         onSignUpSuccess: ((Session) -> Void)? = nil
     ) {

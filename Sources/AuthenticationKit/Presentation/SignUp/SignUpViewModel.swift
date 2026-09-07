@@ -19,10 +19,12 @@ public final class SignUpViewModel: ObservableObject {
 
     public var onSignUpSuccess: ((Session) -> Void)?
 
-    private let signUpUseCase: SignUpUseCase
+    private let authenticationService: AuthenticationService
 
-    public init(signUpUseCase: SignUpUseCase) {
-        self.signUpUseCase = signUpUseCase
+    public init(
+        authenticationService: AuthenticationService = .shared
+    ) {
+        self.authenticationService = authenticationService
     }
 
     public func signUp() {
@@ -55,13 +57,14 @@ public final class SignUpViewModel: ObservableObject {
 
         Task {
             do {
-                let session = try await signUpUseCase.execute(
+                let session = try await authenticationService.signUp(
                     email: email,
                     password: password
                 )
 
                 isLoading = false
                 onSignUpSuccess?(session)
+
             } catch {
                 isLoading = false
                 errorMessage = error.localizedDescription
