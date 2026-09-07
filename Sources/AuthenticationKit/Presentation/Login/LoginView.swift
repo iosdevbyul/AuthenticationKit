@@ -18,7 +18,7 @@ public struct LoginView: View {
     private let onLoginSuccess: ((Session) -> Void)?
 
     public init(
-        viewModel: LoginViewModel,
+        viewModel: LoginViewModel = LoginViewModel(),
         theme: AuthenticationTheme = .default,
         onLoginSuccess: ((Session) -> Void)? = nil,
         onSignUp: (() -> Void)? = nil,
