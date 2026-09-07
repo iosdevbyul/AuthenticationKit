@@ -27,7 +27,9 @@ public final class AuthenticationService: @unchecked Sendable {
         sessionManager.isAuthenticated
     }
 
-    private init() {
+    internal init(
+        session: URLSession = .shared
+    ) {
         guard let baseURL = AuthenticationConfiguration.shared.baseURL else {
             fatalError(
                 "AuthenticationConfiguration must be configured before using AuthenticationService."
@@ -39,7 +41,8 @@ public final class AuthenticationService: @unchecked Sendable {
         )
 
         let networkClient = URLSessionNetworkClient(
-            configuration: networkConfiguration
+            configuration: networkConfiguration,
+            session: session
         )
 
         let repository = NetworkAuthenticationRepository(
