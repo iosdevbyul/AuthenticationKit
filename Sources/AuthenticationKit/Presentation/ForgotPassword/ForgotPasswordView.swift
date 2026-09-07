@@ -15,7 +15,7 @@ public struct ForgotPasswordView: View {
     private let onForgotPasswordSuccess: (() -> Void)?
 
     public init(
-        viewModel: ForgotPasswordViewModel,
+        viewModel: ForgotPasswordViewModel = ForgotPasswordViewModel(),
         theme: AuthenticationTheme = .default,
         onForgotPasswordSuccess: (() -> Void)? = nil
     ) {

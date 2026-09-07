@@ -15,15 +15,15 @@ public final class ForgotPasswordViewModel: ObservableObject {
     @Published public private(set) var isLoading = false
     @Published public private(set) var errorMessage: String?
     @Published public private(set) var isSuccess = false
-
+    
     public var onForgotPasswordSuccess: (() -> Void)?
-
-    private let forgotPasswordUseCase: ForgotPasswordUseCase
+    
+    private let authenticationService: AuthenticationService
 
     public init(
-        forgotPasswordUseCase: ForgotPasswordUseCase
+        authenticationService: AuthenticationService = .shared
     ) {
-        self.forgotPasswordUseCase = forgotPasswordUseCase
+        self.authenticationService = authenticationService
     }
 
     public func forgotPassword() {
@@ -42,13 +42,14 @@ public final class ForgotPasswordViewModel: ObservableObject {
 
         Task {
             do {
-                try await forgotPasswordUseCase.execute(
+                try await authenticationService.forgotPassword(
                     email: email
                 )
 
                 isLoading = false
                 isSuccess = true
                 onForgotPasswordSuccess?()
+
             } catch {
                 isLoading = false
                 errorMessage = error.localizedDescription
