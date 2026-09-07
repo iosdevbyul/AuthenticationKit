@@ -16,15 +16,14 @@ public final class ChangePasswordViewModel: ObservableObject {
 
     @Published public private(set) var isLoading = false
     @Published public private(set) var errorMessage: String?
-
     public var onChangePasswordSuccess: (() -> Void)?
 
-    private let changePasswordUseCase: ChangePasswordUseCase
+    private let authenticationService: AuthenticationService
 
     public init(
-        changePasswordUseCase: ChangePasswordUseCase
+        authenticationService: AuthenticationService = .shared
     ) {
-        self.changePasswordUseCase = changePasswordUseCase
+        self.authenticationService = authenticationService
     }
 
     public func changePassword() {
@@ -57,7 +56,7 @@ public final class ChangePasswordViewModel: ObservableObject {
 
         Task {
             do {
-                try await changePasswordUseCase.execute(
+                try await authenticationService.changePassword(
                     currentPassword: currentPassword,
                     newPassword: newPassword
                 )
