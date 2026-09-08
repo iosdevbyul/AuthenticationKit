@@ -27,66 +27,36 @@ public final class AuthenticationService: @unchecked Sendable {
         sessionManager.isAuthenticated
     }
 
-    internal init(
-        session: URLSession = .shared
-    ) {
+    internal convenience init(session: URLSession = .shared) {
         guard let baseURL = AuthenticationConfiguration.shared.baseURL else {
-            fatalError(
-                "AuthenticationConfiguration must be configured before using AuthenticationService."
-            )
+            fatalError("AuthenticationConfiguration must be configured before using AuthenticationService.")
         }
-
-        let networkConfiguration = NetworkConfiguration(
-            baseURL: baseURL
-        )
-
-        let networkClient = URLSessionNetworkClient(
-            configuration: networkConfiguration,
-            session: session
-        )
-
-        let repository = NetworkAuthenticationRepository(
-            networkClient: networkClient
-        )
-
-        let tokenStorage = DefaultTokenStorage()
-
-        let sessionManager = SessionManager(
-            tokenStorage: tokenStorage
-        )
-
-        self.repository = repository
-        self.sessionManager = sessionManager
-
-        self.loginUseCase = LoginUseCase(
-            repository: repository,
-            sessionManager: sessionManager
-        )
-
-        self.signUpUseCase = SignUpUseCase(
-            repository: repository,
-            sessionManager: sessionManager
-        )
-
-        self.forgotPasswordUseCase = ForgotPasswordUseCase(
-            repository: repository
-        )
-
-        self.changePasswordUseCase = ChangePasswordUseCase(
-            repository: repository
-        )
+        self.init(baseURL: baseURL, tokenStorage: DefaultTokenStorage(), session: session)
     }
 
-    public init(
+    public convenience init(
+        baseURL: URL,
+        tokenStorage: any TokenStorage,
+        session: URLSession = .shared
+    ) {
+        let manager = SessionManager(tokenStorage: tokenStorage)
+        let client = URLSessionNetworkClient(
+            configuration: NetworkConfiguration(baseURL: baseURL),
+            session: session,
+            interceptor: AuthorizationRequestInterceptor(tokenProvider: manager)
+        )
+        self.init(repository: NetworkAuthenticationRepository(networkClient: client), sessionManager: manager)
+    }
+
+    public convenience init(
         repository: any AuthenticationRepository,
         tokenStorage: any TokenStorage
     ) {
+        self.init(repository: repository, sessionManager: SessionManager(tokenStorage: tokenStorage))
+    }
+
+    private init(repository: any AuthenticationRepository, sessionManager: SessionManager) {
         self.repository = repository
-
-        let sessionManager = SessionManager(
-            tokenStorage: tokenStorage
-        )
-
         self.sessionManager = sessionManager
 
         self.loginUseCase = LoginUseCase(
@@ -154,6 +124,20 @@ public final class AuthenticationService: @unchecked Sendable {
             currentPassword: currentPassword,
             newPassword: newPassword
         )
+        try sessionManager.clearSession()
+    }
+
+    public func currentUser() async throws -> User {
+        try await repository.currentUser()
+    }
+
+    public func refreshSession() async throws -> Session {
+        try await RefreshSessionUseCase(repository: repository, sessionManager: sessionManager).execute()
+    }
+
+    public func resetPassword(token: String, newPassword: String) async throws {
+        try await ResetPasswordUseCase(repository: repository).execute(token: token, newPassword: newPassword)
+        try sessionManager.clearSession()
     }
 
     public func restoreSession() throws {

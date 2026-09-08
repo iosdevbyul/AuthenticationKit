@@ -52,6 +52,25 @@ public final class NetworkAuthenticationRepository: AuthenticationRepository, Se
         return response.toDomain()
     }
 
+    public func currentUser() async throws -> User {
+        try await networkClient.request(endpoint: AuthenticationEndpoint.currentUser, responseType: User.self)
+    }
+
+    public func refresh(refreshToken: String) async throws -> Session {
+        let response = try await networkClient.request(
+            endpoint: AuthenticationEndpoint.refresh(refreshToken: refreshToken),
+            responseType: LoginResponseDTO.self
+        )
+        return response.toDomain()
+    }
+
+    public func resetPassword(token: String, newPassword: String) async throws {
+        let _: EmptyResponse = try await networkClient.request(
+            endpoint: AuthenticationEndpoint.resetPassword(token: token, newPassword: newPassword),
+            responseType: EmptyResponse.self
+        )
+    }
+
     public func logout() async throws {
         let endpoint = AuthenticationEndpoint.logout
 

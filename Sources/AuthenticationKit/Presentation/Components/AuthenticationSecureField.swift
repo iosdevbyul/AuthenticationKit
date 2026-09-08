@@ -60,6 +60,7 @@ public struct AuthenticationSecureField: View {
                     )
                     .foregroundColor(theme.secondaryText)
                 }
+                .accessibility(label: Text(isPasswordVisible ? "Hide password" : "Show password"))
             }
             .padding(.horizontal, 16)
             .frame(height: 52)
