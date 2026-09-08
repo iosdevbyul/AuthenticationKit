@@ -10,8 +10,6 @@ import AuthenticationKit
 
 struct ContentView: View {
 
-    private let repository = DemoAuthenticationRepository()
-
     var body: some View {
         NavigationView {
             List {
