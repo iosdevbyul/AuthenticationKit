@@ -177,13 +177,15 @@ struct ChangePasswordViewModelTests {
         let repository = MockAuthenticationRepository(
             shouldFailChangePassword: shouldFailChangePassword
         )
+        let storage = InMemoryTokenStorage()
 
-        let useCase = ChangePasswordUseCase(
-            repository: repository
+        let authenticationService = AuthenticationService(
+            repository: repository,
+            tokenStorage: storage
         )
 
         return ChangePasswordViewModel(
-            changePasswordUseCase: useCase
+            authenticationService: authenticationService
         )
     }
 

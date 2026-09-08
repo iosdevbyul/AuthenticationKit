@@ -24,6 +24,11 @@ public enum AuthenticationEndpoint {
     case withdraw
     
     case forgotPassword(email: String)
+    
+    case changePassword(
+        currentPassword: String,
+        newPassword: String
+    )
 }
 
 extension AuthenticationEndpoint: Endpoint {
@@ -40,12 +45,14 @@ extension AuthenticationEndpoint: Endpoint {
             return "/auth/withdraw"
         case .forgotPassword:
             return "/auth/forgot-password"
+        case .changePassword:
+            return "/auth/change-password"
         }
     }
 
     public var method: HTTPMethod {
         switch self {
-        case .login, .signUp, .logout, .forgotPassword:
+        case .login, .signUp, .logout, .forgotPassword, .changePassword:
             return .post
         case .withdraw:
             return .delete
@@ -88,6 +95,13 @@ extension AuthenticationEndpoint: Endpoint {
                 email: email
             )
 
+            return try? JSONEncoder().encode(body)
+            
+        case let .changePassword(currentPassword, newPassword):
+            let body = ChangePasswordRequestDTO(
+                currentPassword: currentPassword,
+                newPassword: newPassword
+            )
             return try? JSONEncoder().encode(body)
         }
     }

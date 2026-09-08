@@ -148,12 +148,15 @@ struct ForgotPasswordViewModelTests {
             shouldFailForgotPassword: shouldFailForgotPassword
         )
 
-        let useCase = ForgotPasswordUseCase(
-            repository: repository
+        let storage = InMemoryTokenStorage()
+
+        let authenticationService = AuthenticationService(
+            repository: repository,
+            tokenStorage: storage
         )
 
         return ForgotPasswordViewModel(
-            forgotPasswordUseCase: useCase
+            authenticationService: authenticationService
         )
     }
 

@@ -9,10 +9,7 @@ import Foundation
 import NetworkKit
 
 public final class NetworkAuthenticationRepository: AuthenticationRepository, Sendable {
-    public func changePassword(currentPassword: String, newPassword: String) async throws {
-        
-    }
-    
+
     private let networkClient: any NetworkClient
 
     public init(networkClient: any NetworkClient) {
@@ -78,6 +75,21 @@ public final class NetworkAuthenticationRepository: AuthenticationRepository, Se
     ) async throws {
         let endpoint = AuthenticationEndpoint.forgotPassword(
             email: email
+        )
+
+        try await networkClient.request(
+            endpoint: endpoint,
+            responseType: EmptyResponse.self
+        )
+    }
+    
+    public func changePassword(
+        currentPassword: String,
+        newPassword: String
+    ) async throws {
+        let endpoint = AuthenticationEndpoint.changePassword(
+            currentPassword: currentPassword,
+            newPassword: newPassword
         )
 
         try await networkClient.request(

@@ -5,13 +5,6 @@
 //  Created by COMATOKI on 2026-09-03.
 //
 
-//
-//  LoginViewModel.swift
-//  AuthenticationKit
-//
-//  Created by COMATOKI on 2026-09-03.
-//
-
 import Foundation
 
 @MainActor

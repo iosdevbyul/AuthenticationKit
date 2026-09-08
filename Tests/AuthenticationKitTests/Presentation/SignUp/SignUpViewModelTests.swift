@@ -215,20 +215,15 @@ struct SignUpViewModelTests {
         let repository = MockAuthenticationRepository(
             shouldFailSignUp: shouldFailSignUp
         )
-
         let storage = InMemoryTokenStorage()
 
-        let sessionManager = SessionManager(
+        let authenticationService = AuthenticationService(
+            repository: repository,
             tokenStorage: storage
         )
 
-        let useCase = SignUpUseCase(
-            repository: repository,
-            sessionManager: sessionManager
-        )
-
         return SignUpViewModel(
-            signUpUseCase: useCase
+            authenticationService: authenticationService
         )
     }
 }

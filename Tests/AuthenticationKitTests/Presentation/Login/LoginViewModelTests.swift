@@ -162,17 +162,13 @@ struct LoginViewModelTests {
         let repository = MockAuthenticationRepository()
         let storage = InMemoryTokenStorage()
 
-        let sessionManager = SessionManager(
+        let authenticationService = AuthenticationService(
+            repository: repository,
             tokenStorage: storage
         )
 
-        let useCase = LoginUseCase(
-            repository: repository,
-            sessionManager: sessionManager
-        )
-
         return LoginViewModel(
-            loginUseCase: useCase
+            authenticationService: authenticationService
         )
     }
 }
