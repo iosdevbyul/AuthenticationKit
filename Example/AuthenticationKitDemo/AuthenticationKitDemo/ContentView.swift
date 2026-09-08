@@ -16,53 +16,19 @@ struct ContentView: View {
         NavigationView {
             List {
                 NavigationLink("Login") {
-                    LoginView(
-                        viewModel: LoginViewModel(
-                            loginUseCase: LoginUseCase(
-                                repository: repository,
-                                sessionManager: SessionManager(
-                                    tokenStorage: DemoTokenStorage()
-                                )
-                            )
-                        )
-                    )
+                    LoginView()
                 }
 
                 NavigationLink("Sign Up") {
-                    SignUpView(
-                        viewModel: SignUpViewModel(
-                            signUpUseCase: SignUpUseCase(
-                                repository: repository,
-                                sessionManager: SessionManager(
-                                    tokenStorage: DemoTokenStorage()
-                                )
-                            )
-                        )
-                    )
+                    SignUpView()
                 }
 
                 NavigationLink("Forgot Password") {
-                    ForgotPasswordView(
-                        viewModel: ForgotPasswordViewModel(
-                            forgotPasswordUseCase: ForgotPasswordUseCase(
-                                repository: repository
-                            )
-                        )
-                    )
+                    ForgotPasswordView()
                 }
 
                 NavigationLink("Change Password") {
-                    ChangePasswordView(
-                        viewModel: ChangePasswordViewModel(
-                            changePasswordUseCase: ChangePasswordUseCase(
-                                repository: repository
-                            )
-                        )
-                    )
-                }
-                
-                NavigationLink("AuthenticationService") {
-                    AuthenticationServiceDemoView()
+                    ChangePasswordView()
                 }
             }
             .navigationTitle("AuthenticationKit Demo")
