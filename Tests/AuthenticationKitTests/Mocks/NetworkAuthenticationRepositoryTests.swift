@@ -38,7 +38,7 @@ struct NetworkAuthenticationRepositoryTests {
         #expect(session.accessToken == "access-token")
         #expect(session.refreshToken == "refresh-token")
     }
-    
+
     @Test
     func loginCreatesCorrectEndpoint() async throws {
         let networkClient = MockNetworkClient()
@@ -61,13 +61,17 @@ struct NetworkAuthenticationRepositoryTests {
             password: "1234"
         )
 
-        let endpoint = try #require(networkClient.requestedEndpoint)
+        let endpoint = try #require(
+            networkClient.requestedEndpoint
+        )
 
         #expect(endpoint.path == "/auth/login")
         #expect(endpoint.method == .post)
-        #expect(endpoint.headers["Content-Type"] == "application/json")
+        #expect(
+            endpoint.headers["Content-Type"] == "application/json"
+        )
     }
-    
+
     @Test
     func loginEndpointContainsCredentials() async throws {
         let networkClient = MockNetworkClient()
@@ -90,21 +94,30 @@ struct NetworkAuthenticationRepositoryTests {
             password: "1234"
         )
 
-        let endpoint = try #require(networkClient.requestedEndpoint)
+        let endpoint = try #require(
+            networkClient.requestedEndpoint
+        )
+
         let body = try #require(endpoint.body)
 
         let json = try #require(
-            JSONSerialization.jsonObject(with: body) as? [String: Any]
+            JSONSerialization.jsonObject(
+                with: body
+            ) as? [String: Any]
         )
 
-        #expect(json["email"] as? String == "test@test.com")
-        #expect(json["password"] as? String == "1234")
+        #expect(
+            json["email"] as? String == "test@test.com"
+        )
+
+        #expect(
+            json["password"] as? String == "1234"
+        )
     }
-    
+
     @Test
     func withdrawSendsCorrectEndpoint() async throws {
         let networkClient = MockNetworkClient()
-
         networkClient.response = EmptyResponse()
 
         let repository = NetworkAuthenticationRepository(
@@ -113,19 +126,20 @@ struct NetworkAuthenticationRepositoryTests {
 
         try await repository.withdraw()
 
-        let endpoint = try #require(networkClient.requestedEndpoint)
+        let endpoint = try #require(
+            networkClient.requestedEndpoint
+        )
 
         #expect(endpoint.path == "/auth/withdraw")
         #expect(endpoint.method == .delete)
         #expect(endpoint.body == nil)
     }
-    
+
     // MARK: - Forgot Password
 
     @Test
     func forgotPasswordCreatesCorrectEndpoint() async throws {
         let networkClient = MockNetworkClient()
-
         networkClient.response = EmptyResponse()
 
         let repository = NetworkAuthenticationRepository(
@@ -146,11 +160,10 @@ struct NetworkAuthenticationRepositoryTests {
             endpoint.headers["Content-Type"] == "application/json"
         )
     }
-    
+
     @Test
     func forgotPasswordEndpointContainsEmail() async throws {
         let networkClient = MockNetworkClient()
-
         networkClient.response = EmptyResponse()
 
         let repository = NetworkAuthenticationRepository(
@@ -175,6 +188,76 @@ struct NetworkAuthenticationRepositoryTests {
 
         #expect(
             json["email"] as? String == "forgot@test.com"
+        )
+    }
+
+    // MARK: - Change Password
+
+    @Test
+    func changePasswordCreatesCorrectEndpoint() async throws {
+        let networkClient = MockNetworkClient()
+        networkClient.response = EmptyResponse()
+
+        let repository = NetworkAuthenticationRepository(
+            networkClient: networkClient
+        )
+
+        try await repository.changePassword(
+            currentPassword: "old-password",
+            newPassword: "new-password"
+        )
+
+        let endpoint = try #require(
+            networkClient.requestedEndpoint
+        )
+
+        #expect(
+            endpoint.path == "/auth/change-password"
+        )
+
+        #expect(
+            endpoint.method == .post
+        )
+
+        #expect(
+            endpoint.headers["Content-Type"] == "application/json"
+        )
+    }
+
+    @Test
+    func changePasswordEndpointContainsPasswords() async throws {
+        let networkClient = MockNetworkClient()
+        networkClient.response = EmptyResponse()
+
+        let repository = NetworkAuthenticationRepository(
+            networkClient: networkClient
+        )
+
+        try await repository.changePassword(
+            currentPassword: "old-password",
+            newPassword: "new-password"
+        )
+
+        let endpoint = try #require(
+            networkClient.requestedEndpoint
+        )
+
+        let body = try #require(
+            endpoint.body
+        )
+
+        let json = try #require(
+            JSONSerialization.jsonObject(
+                with: body
+            ) as? [String: Any]
+        )
+
+        #expect(
+            json["currentPassword"] as? String == "old-password"
+        )
+
+        #expect(
+            json["newPassword"] as? String == "new-password"
         )
     }
 }

@@ -92,4 +92,45 @@ final class AuthenticationServiceNetworkTests: XCTestCase {
         XCTAssertTrue(service.isAuthenticated)
         XCTAssertEqual(service.currentSession, session)
     }
+    
+    func testChangePasswordThroughNetwork() async throws {
+        let responseData = """
+        {
+            "message": "Password changed successfully."
+        }
+        """.data(using: .utf8)!
+
+        MockURLProtocol.response = HTTPURLResponse(
+            url: URL(string: "https://example.com/auth/change-password")!,
+            statusCode: 200,
+            httpVersion: nil,
+            headerFields: [
+                "Content-Type": "application/json"
+            ]
+        )
+
+        MockURLProtocol.responseData = responseData
+
+        try await service.changePassword(
+            currentPassword: "old-password",
+            newPassword: "new-password"
+        )
+
+        let request = try XCTUnwrap(MockURLProtocol.request)
+
+        XCTAssertEqual(
+            request.url?.path,
+            "/auth/change-password"
+        )
+
+        XCTAssertEqual(
+            request.httpMethod,
+            "POST"
+        )
+
+        XCTAssertEqual(
+            request.value(forHTTPHeaderField: "Content-Type"),
+            "application/json"
+        )
+    }
 }
