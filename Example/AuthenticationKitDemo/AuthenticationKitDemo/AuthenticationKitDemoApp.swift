@@ -12,8 +12,17 @@ import AuthenticationKit
 struct AuthenticationKitDemoApp: App {
 
     init() {
+        guard
+            let baseURLString = Bundle.main.object(
+                forInfoDictionaryKey: "API_BASE_URL"
+            ) as? String,
+            let baseURL = URL(string: baseURLString)
+        else {
+            fatalError("API_BASE_URL is missing or invalid.")
+        }
+
         AuthenticationConfiguration.shared.configure(
-            baseURL: URL(string: "https://api.example.com")!
+            baseURL: baseURL
         )
     }
 
