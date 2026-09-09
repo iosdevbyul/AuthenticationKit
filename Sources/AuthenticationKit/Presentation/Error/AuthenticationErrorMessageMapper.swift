@@ -14,6 +14,8 @@ enum AuthenticationErrorContext {
     case forgotPassword
     case resetPassword
     case changePassword
+    case verifyEmail
+    case resendVerificationEmail
     case session
     case withdrawal
 }
@@ -26,6 +28,9 @@ enum AuthenticationErrorMessageMapper {
     ) -> String {
 
         if let authenticationError = error as? AuthenticationError {
+            if context == .verifyEmail, authenticationError == .invalidInput {
+                return "인증 링크가 유효하지 않거나 만료되었습니다."
+            }
             return authenticationMessage(authenticationError)
         }
 
@@ -94,9 +99,15 @@ enum AuthenticationErrorMessageMapper {
         statusCode: Int,
         context: AuthenticationErrorContext
     ) -> String {
+        if context == .resendVerificationEmail, [404, 409, 429].contains(statusCode) {
+            return "가입된 이메일인 경우 인증 메일이 전송됩니다."
+        }
         switch statusCode {
         case 400:
             switch context {
+            case .verifyEmail:
+                return "인증 링크가 유효하지 않거나 만료되었습니다."
+
             case .resetPassword:
                 return "비밀번호 재설정 링크가 유효하지 않거나 만료되었습니다."
 

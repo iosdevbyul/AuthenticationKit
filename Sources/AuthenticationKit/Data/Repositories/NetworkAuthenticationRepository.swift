@@ -71,6 +71,21 @@ public final class NetworkAuthenticationRepository: AuthenticationRepository, Se
         )
     }
 
+    public func verifyEmail(token: String) async throws {
+        let _: EmailVerificationResponseDTO = try await networkClient.request(
+            endpoint: AuthenticationEndpoint.verifyEmail(token: token),
+            responseType: EmailVerificationResponseDTO.self
+        )
+    }
+
+    public func resendVerificationEmail(email: String) async throws {
+        let normalized = email.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
+        let _: EmailVerificationResponseDTO = try await networkClient.request(
+            endpoint: AuthenticationEndpoint.resendVerificationEmail(email: normalized),
+            responseType: EmailVerificationResponseDTO.self
+        )
+    }
+
     public func logout() async throws {
         let endpoint = AuthenticationEndpoint.logout
 

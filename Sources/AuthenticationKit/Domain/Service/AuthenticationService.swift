@@ -128,7 +128,20 @@ public final class AuthenticationService: @unchecked Sendable {
     }
 
     public func currentUser() async throws -> User {
-        try await repository.currentUser()
+        let expectedSession = sessionManager.currentSession
+        let user = try await repository.currentUser()
+        if let expectedSession {
+            try sessionManager.updateUser(user, for: expectedSession)
+        }
+        return user
+    }
+
+    public func verifyEmail(token: String) async throws {
+        try await VerifyEmailUseCase(repository: repository).execute(token: token)
+    }
+
+    public func resendVerificationEmail(email: String) async throws {
+        try await ResendVerificationEmailUseCase(repository: repository).execute(email: email)
     }
 
     public func refreshSession() async throws -> Session {

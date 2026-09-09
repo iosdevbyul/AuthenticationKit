@@ -5,6 +5,8 @@ struct ContentView: View {
 
     @State private var session: Session?
     @State private var isRestoringSession = true
+    @State private var verificationLink: VerificationDestination?
+    @State private var invalidVerificationLink = false
 
     var body: some View {
         Group {
@@ -28,6 +30,32 @@ struct ContentView: View {
         }
         .task {
             await restoreSession()
+        }
+        .onOpenURL { url in
+            guard url.scheme?.lowercased() == "waktrainer", url.host == "verify-email" else { return }
+            guard let link = EmailVerificationLink(url: url) else {
+                invalidVerificationLink = true
+                return
+            }
+            verificationLink = VerificationDestination(token: link.token)
+        }
+        .sheet(item: Binding(
+            get: { isRestoringSession ? nil : verificationLink },
+            set: { verificationLink = $0 }
+        )) { destination in
+            NavigationStack {
+                EmailVerificationScreen(token: destination.token) {
+                    session = AuthenticationService.shared.currentSession
+                }
+                .toolbar {
+                    Button("닫기") { verificationLink = nil }
+                }
+            }
+        }
+        .alert("이메일 인증", isPresented: $invalidVerificationLink) {
+            Button("확인", role: .cancel) {}
+        } message: {
+            Text("인증 링크가 유효하지 않거나 만료되었습니다.")
         }
     }
 
@@ -243,6 +271,10 @@ private struct HomeView: View {
 
                     Text(session.user.email)
                         .foregroundStyle(.secondary)
+                    if !session.user.isEmailVerified {
+                        Text("이메일 인증 필요 · 설정에서 인증 메일을 재전송할 수 있습니다.")
+                            .font(.footnote).foregroundStyle(.secondary)
+                    }
                 }
                 .padding()
                 .frame(
@@ -300,6 +332,20 @@ private struct SettingsView: View {
                 }
             }
 
+            if !session.user.isEmailVerified {
+                Section("이메일 인증 필요") {
+                    NavigationLink {
+                        EmailVerificationScreen {
+                            if let updated = AuthenticationService.shared.currentSession {
+                                onSessionChanged(updated)
+                            }
+                        }
+                    } label: {
+                        Label("이메일 인증 / 메일 재전송", systemImage: "envelope")
+                    }
+                }
+            }
+
             Section("세션") {
                 Button {
                     currentUser()
@@ -347,6 +393,9 @@ private struct SettingsView: View {
         perform {
             let user = try await AuthenticationService.shared.currentUser()
 
+            if let updated = AuthenticationService.shared.currentSession {
+                onSessionChanged(updated)
+            }
             message = "현재 사용자: \(user.email)"
         }
     }
@@ -542,5 +591,37 @@ private struct ChangePasswordScreen: View {
         ) {
             onPasswordChanged()
         }
+    }
+}
+
+
+// MARK: - Email Verification
+
+private struct VerificationDestination: Identifiable {
+    let id = UUID()
+    let token: String
+}
+
+private struct EmailVerificationScreen: View {
+    @StateObject private var viewModel: EmailVerificationViewModel
+    @State private var didHandleLink = false
+    let onUserUpdated: () -> Void
+
+    init(token: String? = nil, onUserUpdated: @escaping () -> Void) {
+        _viewModel = StateObject(wrappedValue: EmailVerificationViewModel(token: token))
+        self.onUserUpdated = onUserUpdated
+    }
+
+    var body: some View {
+        EmailVerificationView(viewModel: viewModel)
+            .navigationTitle("이메일 인증")
+            .onAppear {
+                viewModel.onUserUpdated = { _ in onUserUpdated() }
+            }
+            .task {
+                guard !didHandleLink, viewModel.hasVerificationToken else { return }
+                didHandleLink = true
+                await viewModel.verifyEmail()
+            }
     }
 }

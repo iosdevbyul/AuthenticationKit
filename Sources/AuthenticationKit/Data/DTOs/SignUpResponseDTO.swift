@@ -19,7 +19,8 @@ extension SignUpResponseDTO {
         Session(
             user: User(
                 id: user.id,
-                email: user.email
+                email: user.email,
+                isEmailVerified: user.isEmailVerified
             ),
             accessToken: accessToken,
             refreshToken: refreshToken

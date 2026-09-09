@@ -6,8 +6,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/iosdevbyul/TrisNetworkKit.git",
       "state" : {
-        "branch" : "main",
-        "revision" : "c915998d9329dbf38117e63655bd0bba59b8ad01"
+        "revision" : "e0d15ed31922078e42135e4968d5c49e51173232",
+        "version" : "0.1.0"
       }
     }
   ],

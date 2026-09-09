@@ -5,6 +5,7 @@
 //  Created by COMATOKI on 2026-09-04.
 //
 
+import Foundation
 import Testing
 @testable import AuthenticationKit
 
@@ -95,7 +96,7 @@ struct ChangePasswordViewModelTests {
 
         viewModel.changePassword()
 
-        try await waitForTask()
+        try await waitForTask(viewModel)
 
         #expect(didSucceed == true)
     }
@@ -108,7 +109,7 @@ struct ChangePasswordViewModelTests {
 
         viewModel.changePassword()
 
-        try await waitForTask()
+        try await waitForTask(viewModel)
 
         #expect(viewModel.isLoading == false)
         #expect(viewModel.errorMessage == nil)
@@ -124,7 +125,7 @@ struct ChangePasswordViewModelTests {
 
         viewModel.changePassword()
 
-        try await waitForTask()
+        try await waitForTask(viewModel)
 
         #expect(viewModel.isLoading == false)
         #expect(viewModel.errorMessage != nil)
@@ -146,7 +147,7 @@ struct ChangePasswordViewModelTests {
 
         viewModel.changePassword()
 
-        try await waitForTask()
+        try await waitForTask(viewModel)
 
         #expect(didSucceed == false)
     }
@@ -166,7 +167,7 @@ struct ChangePasswordViewModelTests {
         viewModel.changePassword()
         viewModel.changePassword()
 
-        try await waitForTask()
+        try await waitForTask(viewModel)
 
         #expect(successCount == 1)
     }
@@ -197,9 +198,11 @@ struct ChangePasswordViewModelTests {
         viewModel.passwordConfirmation = "new-password"
     }
 
-    private func waitForTask() async throws {
-        try await Task.sleep(
-            nanoseconds: 100_000_000
-        )
+    private func waitForTask(_ model: ChangePasswordViewModel) async throws {
+        let deadline = Date().addingTimeInterval(3)
+        while model.isLoading, Date() < deadline {
+            try await Task.sleep(nanoseconds: 1_000_000)
+        }
+        #expect(!model.isLoading)
     }
 }

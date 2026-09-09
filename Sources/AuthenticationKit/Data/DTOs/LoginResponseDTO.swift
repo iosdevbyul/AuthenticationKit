@@ -16,6 +16,22 @@ struct LoginResponseDTO: Decodable {
 struct UserDTO: Decodable {
     let id: String
     let email: String
+    let isEmailVerified: Bool
+
+    init(id: String, email: String, isEmailVerified: Bool = false) {
+        self.id = id
+        self.email = email
+        self.isEmailVerified = isEmailVerified
+    }
+
+    private enum CodingKeys: String, CodingKey { case id, email, isEmailVerified }
+
+    init(from decoder: any Decoder) throws {
+        let values = try decoder.container(keyedBy: CodingKeys.self)
+        id = try values.decode(String.self, forKey: .id)
+        email = try values.decode(String.self, forKey: .email)
+        isEmailVerified = try values.decodeIfPresent(Bool.self, forKey: .isEmailVerified) ?? false
+    }
 }
 
 extension LoginResponseDTO {
@@ -24,7 +40,8 @@ extension LoginResponseDTO {
         Session(
             user: User(
                 id: user.id,
-                email: user.email
+                email: user.email,
+                isEmailVerified: user.isEmailVerified
             ),
             accessToken: accessToken,
             refreshToken: refreshToken

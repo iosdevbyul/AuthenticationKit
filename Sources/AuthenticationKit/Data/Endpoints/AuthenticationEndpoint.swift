@@ -19,6 +19,8 @@ public enum AuthenticationEndpoint {
         password: String
     )
     
+    case verifyEmail(token: String)
+    case resendVerificationEmail(email: String)
     case currentUser
     case refresh(refreshToken: String)
     case resetPassword(token: String, newPassword: String)
@@ -39,6 +41,10 @@ extension AuthenticationEndpoint: Endpoint {
 
     public var path: String {
         switch self {
+        case .verifyEmail:
+            return "/auth/verify-email"
+        case .resendVerificationEmail:
+            return "/auth/resend-verification-email"
         case .currentUser:
             return "/auth/me"
         case .refresh:
@@ -62,7 +68,7 @@ extension AuthenticationEndpoint: Endpoint {
 
     public var method: HTTPMethod {
         switch self {
-        case .login, .signUp, .logout, .forgotPassword, .changePassword, .refresh, .resetPassword:
+        case .login, .signUp, .logout, .forgotPassword, .changePassword, .refresh, .resetPassword, .verifyEmail, .resendVerificationEmail:
             return .post
         case .currentUser:
             return .get
@@ -99,6 +105,10 @@ extension AuthenticationEndpoint: Endpoint {
 
             return try? JSONEncoder().encode(body)
             
+        case let .verifyEmail(token):
+            return try? JSONEncoder().encode(VerifyEmailRequestDTO(token: token))
+        case let .resendVerificationEmail(email):
+            return try? JSONEncoder().encode(ResendVerificationEmailRequestDTO(email: email))
         case let .refresh(refreshToken):
             return try? JSONEncoder().encode(RefreshTokenRequestDTO(refreshToken: refreshToken))
         case let .resetPassword(token, newPassword):

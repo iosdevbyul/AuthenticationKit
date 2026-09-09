@@ -5,6 +5,7 @@
 //  Created by COMATOKI on 2026-09-04.
 //
 
+import Foundation
 import Testing
 @testable import AuthenticationKit
 
@@ -18,8 +19,8 @@ struct SignUpViewModelTests {
         )
 
         viewModel.email = ""
-        viewModel.password = "1234"
-        viewModel.passwordConfirmation = "1234"
+        viewModel.password = "Password123"
+        viewModel.passwordConfirmation = "Password123"
 
         viewModel.signUp()
 
@@ -35,7 +36,7 @@ struct SignUpViewModelTests {
 
         viewModel.email = "test@test.com"
         viewModel.password = ""
-        viewModel.passwordConfirmation = "1234"
+        viewModel.passwordConfirmation = "Password123"
 
         viewModel.signUp()
 
@@ -50,7 +51,7 @@ struct SignUpViewModelTests {
         )
 
         viewModel.email = "test@test.com"
-        viewModel.password = "1234"
+        viewModel.password = "Password123"
         viewModel.passwordConfirmation = ""
 
         viewModel.signUp()
@@ -69,8 +70,8 @@ struct SignUpViewModelTests {
         )
 
         viewModel.email = "test@test.com"
-        viewModel.password = "1234"
-        viewModel.passwordConfirmation = "5678"
+        viewModel.password = "Password123"
+        viewModel.passwordConfirmation = "Different123"
 
         viewModel.signUp()
 
@@ -88,8 +89,8 @@ struct SignUpViewModelTests {
         )
 
         viewModel.email = "test@test.com"
-        viewModel.password = "1234"
-        viewModel.passwordConfirmation = "1234"
+        viewModel.password = "Password123"
+        viewModel.passwordConfirmation = "Password123"
 
         viewModel.signUp()
 
@@ -102,8 +103,8 @@ struct SignUpViewModelTests {
         let viewModel = makeViewModel()
 
         viewModel.email = "test@test.com"
-        viewModel.password = "1234"
-        viewModel.passwordConfirmation = "1234"
+        viewModel.password = "Password123"
+        viewModel.passwordConfirmation = "Password123"
 
         var didCallSuccess = false
         var receivedSession: Session?
@@ -115,9 +116,7 @@ struct SignUpViewModelTests {
 
         viewModel.signUp()
 
-        try await Task.sleep(
-            nanoseconds: 100_000_000
-        )
+        try await waitForCompletion(viewModel)
 
         #expect(didCallSuccess)
         #expect(receivedSession?.user.email == "test@test.com")
@@ -132,14 +131,12 @@ struct SignUpViewModelTests {
         let viewModel = makeViewModel()
 
         viewModel.email = "test@test.com"
-        viewModel.password = "1234"
-        viewModel.passwordConfirmation = "1234"
+        viewModel.password = "Password123"
+        viewModel.passwordConfirmation = "Password123"
 
         viewModel.signUp()
 
-        try await Task.sleep(
-            nanoseconds: 100_000_000
-        )
+        try await waitForCompletion(viewModel)
 
         #expect(!viewModel.isLoading)
         #expect(viewModel.errorMessage == nil)
@@ -152,14 +149,12 @@ struct SignUpViewModelTests {
         )
 
         viewModel.email = "test@test.com"
-        viewModel.password = "1234"
-        viewModel.passwordConfirmation = "1234"
+        viewModel.password = "Password123"
+        viewModel.passwordConfirmation = "Password123"
 
         viewModel.signUp()
 
-        try await Task.sleep(
-            nanoseconds: 100_000_000
-        )
+        try await waitForCompletion(viewModel)
 
         #expect(!viewModel.isLoading)
         #expect(viewModel.errorMessage != nil)
@@ -172,8 +167,8 @@ struct SignUpViewModelTests {
         )
 
         viewModel.email = "test@test.com"
-        viewModel.password = "1234"
-        viewModel.passwordConfirmation = "1234"
+        viewModel.password = "Password123"
+        viewModel.passwordConfirmation = "Password123"
 
         var didCallSuccess = false
 
@@ -183,9 +178,7 @@ struct SignUpViewModelTests {
 
         viewModel.signUp()
 
-        try await Task.sleep(
-            nanoseconds: 100_000_000
-        )
+        try await waitForCompletion(viewModel)
 
         #expect(!didCallSuccess)
     }
@@ -197,8 +190,8 @@ struct SignUpViewModelTests {
         )
 
         viewModel.email = "test@test.com"
-        viewModel.password = "1234"
-        viewModel.passwordConfirmation = "1234"
+        viewModel.password = "Password123"
+        viewModel.passwordConfirmation = "Password123"
 
         viewModel.signUp()
 
@@ -207,6 +200,14 @@ struct SignUpViewModelTests {
         viewModel.signUp()
 
         #expect(viewModel.isLoading)
+    }
+
+    private func waitForCompletion(_ model: SignUpViewModel) async throws {
+        let deadline = Date().addingTimeInterval(3)
+        while model.isLoading, Date() < deadline {
+            try await Task.sleep(nanoseconds: 1_000_000)
+        }
+        #expect(!model.isLoading)
     }
 
     private func makeViewModel(
