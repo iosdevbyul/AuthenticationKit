@@ -88,7 +88,10 @@ public struct ForgotPasswordView: View {
     }
 
     private var successMessage: some View {
-        Text("비밀번호 재설정 안내를 이메일로 보내드렸습니다.")
+        Text("""
+            입력한 이메일이 가입된 계정이라면
+            비밀번호 재설정 안내 메일이 전송됩니다.
+            """)
             .font(.footnote)
             .foregroundColor(theme.primary)
             .frame(
