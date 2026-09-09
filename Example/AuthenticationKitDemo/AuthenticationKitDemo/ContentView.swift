@@ -2,94 +2,545 @@ import SwiftUI
 import AuthenticationKit
 
 struct ContentView: View {
-    @StateObject private var loginModel = LoginViewModel()
-    @StateObject private var signUpModel = SignUpViewModel()
-    @StateObject private var forgotPasswordModel = ForgotPasswordViewModel()
-    @StateObject private var changePasswordModel = ChangePasswordViewModel()
+
     @State private var session: Session?
+    @State private var isRestoringSession = true
+
+    var body: some View {
+        Group {
+            if isRestoringSession {
+                LaunchView()
+            } else if let session {
+                MainTabView(
+                    session: session,
+                    onSessionChanged: { newSession in
+                        self.session = newSession
+                    },
+                    onSignedOut: {
+                        self.session = nil
+                    }
+                )
+            } else {
+                AuthenticationFlowView { session in
+                    self.session = session
+                }
+            }
+        }
+        .task {
+            await restoreSession()
+        }
+    }
+
+    private func restoreSession() async {
+        defer {
+            isRestoringSession = false
+        }
+
+        do {
+            try AuthenticationService.shared.restoreSession()
+
+            _ = try await AuthenticationService.shared.currentUser()
+
+            session = AuthenticationService.shared.currentSession
+        } catch {
+            session = nil
+        }
+    }
+}
+
+
+// MARK: - Launch
+
+private struct LaunchView: View {
+
+    var body: some View {
+        VStack(spacing: 16) {
+            Text("WakTrainer")
+                .font(.largeTitle.bold())
+
+            ProgressView()
+        }
+    }
+}
+
+
+// MARK: - Authentication Flow
+
+private struct AuthenticationFlowView: View {
+
+    let onAuthenticated: (Session) -> Void
+
+    var body: some View {
+        NavigationStack {
+            LoginScreen(
+                onAuthenticated: onAuthenticated
+            )
+        }
+    }
+}
+
+
+// MARK: - Login
+
+private struct LoginScreen: View {
+
+    let onAuthenticated: (Session) -> Void
+
+    @StateObject private var viewModel = LoginViewModel()
+
+    var body: some View {
+        VStack(spacing: 24) {
+            LoginView(
+                viewModel: viewModel,
+                onLoginSuccess: onAuthenticated
+            )
+
+            VStack(spacing: 16) {
+                NavigationLink {
+                    SignUpScreen(
+                        onAuthenticated: onAuthenticated
+                    )
+                } label: {
+                    Text("계정이 없으신가요? 회원가입")
+                }
+
+                NavigationLink {
+                    ForgotPasswordScreen()
+                } label: {
+                    Text("비밀번호를 잊으셨나요?")
+                }
+            }
+            .padding(.bottom, 32)
+        }
+    }
+}
+
+
+// MARK: - Sign Up
+
+private struct SignUpScreen: View {
+
+    let onAuthenticated: (Session) -> Void
+
+    @StateObject private var viewModel = SignUpViewModel()
+
+    var body: some View {
+        SignUpView(
+            viewModel: viewModel,
+            onSignUpSuccess: onAuthenticated
+        )
+    }
+}
+
+
+// MARK: - Forgot Password
+
+private struct ForgotPasswordScreen: View {
+
+    @StateObject private var viewModel = ForgotPasswordViewModel()
+
+    var body: some View {
+        VStack(spacing: 20) {
+            ForgotPasswordView(
+                viewModel: viewModel
+            )
+
+            NavigationLink {
+                ResetPasswordScreen()
+            } label: {
+                Text("재설정 토큰 직접 입력")
+            }
+            .padding(.bottom, 24)
+        }
+    }
+}
+
+
+// MARK: - Reset Password
+
+private struct ResetPasswordScreen: View {
+
+    @Environment(\.dismiss) private var dismiss
+
+    var body: some View {
+        ResetPasswordView {
+            dismiss()
+        }
+    }
+}
+
+
+// MARK: - Main
+
+private struct MainTabView: View {
+
+    let session: Session
+    let onSessionChanged: (Session) -> Void
+    let onSignedOut: () -> Void
+
+    var body: some View {
+        TabView {
+            NavigationStack {
+                HomeView(
+                    session: session
+                )
+            }
+            .tabItem {
+                Label(
+                    "홈",
+                    systemImage: "house"
+                )
+            }
+
+            NavigationStack {
+                SettingsView(
+                    session: session,
+                    onSessionChanged: onSessionChanged,
+                    onSignedOut: onSignedOut
+                )
+            }
+            .tabItem {
+                Label(
+                    "설정",
+                    systemImage: "gearshape"
+                )
+            }
+        }
+    }
+}
+
+
+// MARK: - Home
+
+private struct HomeView: View {
+
+    let session: Session
+
+    var body: some View {
+        ScrollView {
+            VStack(
+                alignment: .leading,
+                spacing: 24
+            ) {
+                VStack(
+                    alignment: .leading,
+                    spacing: 8
+                ) {
+                    Text("WakTrainer")
+                        .font(.largeTitle.bold())
+
+                    Text("오늘도 좋은 훈련 되세요.")
+                        .font(.title3)
+                        .foregroundStyle(.secondary)
+                }
+
+                VStack(
+                    alignment: .leading,
+                    spacing: 8
+                ) {
+                    Text("로그인 계정")
+                        .font(.headline)
+
+                    Text(session.user.email)
+                        .foregroundStyle(.secondary)
+                }
+                .padding()
+                .frame(
+                    maxWidth: .infinity,
+                    alignment: .leading
+                )
+                .background(
+                    .regularMaterial,
+                    in: RoundedRectangle(
+                        cornerRadius: 16
+                    )
+                )
+
+                Spacer()
+            }
+            .padding()
+        }
+        .navigationTitle("홈")
+    }
+}
+
+
+// MARK: - Settings
+
+private struct SettingsView: View {
+
+    let session: Session
+    let onSessionChanged: (Session) -> Void
+    let onSignedOut: () -> Void
+
     @State private var message: String?
     @State private var errorMessage: String?
     @State private var isLoading = false
 
     var body: some View {
-        NavigationStack {
-            List {
-                Section("Session") {
-                    Text(session?.user.email ?? "Not signed in")
-                        .accessibilityIdentifier("sessionEmail")
-                    if let message { Text(message).accessibilityIdentifier("sessionMessage") }
-                    if let errorMessage { Text(errorMessage).foregroundStyle(.red) }
-                }
-                NavigationLink("Login") {
-                    LoginView(viewModel: loginModel) { session in
-                        self.session = session
-                        message = "Login succeeded"
-                    }
-                    .overlay(alignment: .bottom) {
-                        if message == "Login succeeded" { Text("Login succeeded") }
-                    }
-                }
-                NavigationLink("Sign Up") {
-                    SignUpView(viewModel: signUpModel) { session in
-                        self.session = session
-                        message = "Sign up succeeded"
-                    }
-                    .overlay(alignment: .bottom) {
-                        if message == "Sign up succeeded" { Text("Sign up succeeded") }
-                    }
-                }
-                NavigationLink("Forgot Password") { ForgotPasswordView(viewModel: forgotPasswordModel) }
-                NavigationLink("Reset Password") {
-                    ResetPasswordView { session = nil; message = "Password reset; please log in" }
-                }
-                NavigationLink("Change Password") {
-                    ChangePasswordView(viewModel: changePasswordModel) { session = nil; message = "Password changed; please log in" }
-                }
-                Button("Current User") {
-                    perform {
-                        let user = try await AuthenticationService.shared.currentUser()
-                        message = "Current user: \(user.email)"
-                    }
-                }
-                Button("Refresh Session") {
-                    perform {
-                        session = try await AuthenticationService.shared.refreshSession()
-                        message = "Session refreshed"
-                    }
-                }
-                Button("Logout") {
-                    perform {
-                        try await AuthenticationService.shared.logout()
-                        session = nil
-                        message = "Logged out"
-                    }
-                }
-                Button("Withdraw", role: .destructive) {
-                    perform {
-                        try await AuthenticationService.shared.withdraw()
-                        session = nil
-                        message = "Account withdrawn"
-                    }
+        List {
+            Section("프로필") {
+                LabeledContent(
+                    "이메일",
+                    value: session.user.email
+                )
+            }
+
+            Section {
+                NavigationLink {
+                    AccountSettingsView(
+                        session: session,
+                        onSignedOut: onSignedOut
+                    )
+                } label: {
+                    Label(
+                        "계정 관리",
+                        systemImage: "person.crop.circle"
+                    )
                 }
             }
-            .disabled(isLoading)
-            .navigationTitle("AuthenticationKit Demo")
-            .task {
-                do {
-                    try AuthenticationService.shared.restoreSession()
-                    session = AuthenticationService.shared.currentSession
-                } catch { errorMessage = error.localizedDescription }
+
+            Section("세션") {
+                Button {
+                    currentUser()
+                } label: {
+                    Label(
+                        "현재 사용자 확인",
+                        systemImage: "person.text.rectangle"
+                    )
+                }
+
+                Button {
+                    refreshSession()
+                } label: {
+                    Label(
+                        "세션 갱신",
+                        systemImage: "arrow.clockwise"
+                    )
+                }
+            }
+
+            if let message {
+                Section {
+                    Text(message)
+                        .foregroundStyle(.secondary)
+                }
+            }
+
+            if let errorMessage {
+                Section {
+                    Text(errorMessage)
+                        .foregroundStyle(.red)
+                }
+            }
+        }
+        .navigationTitle("설정")
+        .disabled(isLoading)
+        .overlay {
+            if isLoading {
+                ProgressView()
             }
         }
     }
 
-    private func perform(_ action: @escaping @MainActor () async throws -> Void) {
+    private func currentUser() {
+        perform {
+            let user = try await AuthenticationService.shared.currentUser()
+
+            message = "현재 사용자: \(user.email)"
+        }
+    }
+
+    private func refreshSession() {
+        perform {
+            let newSession = try await AuthenticationService.shared.refreshSession()
+
+            onSessionChanged(newSession)
+            message = "세션을 갱신했습니다."
+        }
+    }
+
+    private func perform(
+        _ action: @escaping @MainActor () async throws -> Void
+    ) {
+        isLoading = true
+        message = nil
+        errorMessage = nil
+
+        Task { @MainActor in
+            defer {
+                isLoading = false
+            }
+
+            do {
+                try await action()
+            } catch {
+                errorMessage = error.localizedDescription
+            }
+        }
+    }
+}
+
+
+// MARK: - Account Settings
+
+private struct AccountSettingsView: View {
+
+    let session: Session
+    let onSignedOut: () -> Void
+
+    @State private var isLoading = false
+    @State private var errorMessage: String?
+    @State private var showLogoutConfirmation = false
+    @State private var showWithdrawConfirmation = false
+
+    var body: some View {
+        List {
+            Section("계정") {
+                LabeledContent(
+                    "이메일",
+                    value: session.user.email
+                )
+
+                NavigationLink {
+                    ChangePasswordScreen(
+                        onPasswordChanged: onSignedOut
+                    )
+                } label: {
+                    Label(
+                        "비밀번호 변경",
+                        systemImage: "lock"
+                    )
+                }
+            }
+
+            Section {
+                Button {
+                    showLogoutConfirmation = true
+                } label: {
+                    Label(
+                        "로그아웃",
+                        systemImage: "rectangle.portrait.and.arrow.right"
+                    )
+                }
+            }
+
+            Section {
+                Button(
+                    role: .destructive
+                ) {
+                    showWithdrawConfirmation = true
+                } label: {
+                    Label(
+                        "회원탈퇴",
+                        systemImage: "person.crop.circle.badge.minus"
+                    )
+                }
+            } footer: {
+                Text("회원탈퇴 시 계정과 인증 정보가 삭제됩니다.")
+            }
+
+            if let errorMessage {
+                Section {
+                    Text(errorMessage)
+                        .foregroundStyle(.red)
+                }
+            }
+        }
+        .navigationTitle("계정 관리")
+        .navigationBarTitleDisplayMode(.inline)
+        .disabled(isLoading)
+        .overlay {
+            if isLoading {
+                ProgressView()
+            }
+        }
+        .confirmationDialog(
+            "로그아웃 하시겠습니까?",
+            isPresented: $showLogoutConfirmation,
+            titleVisibility: .visible
+        ) {
+            Button(
+                "로그아웃",
+                role: .destructive
+            ) {
+                logout()
+            }
+
+            Button(
+                "취소",
+                role: .cancel
+            ) {}
+        }
+        .confirmationDialog(
+            "정말 회원탈퇴 하시겠습니까?",
+            isPresented: $showWithdrawConfirmation,
+            titleVisibility: .visible
+        ) {
+            Button(
+                "회원탈퇴",
+                role: .destructive
+            ) {
+                withdraw()
+            }
+
+            Button(
+                "취소",
+                role: .cancel
+            ) {}
+        } message: {
+            Text("이 작업은 되돌릴 수 없습니다.")
+        }
+    }
+
+    private func logout() {
+        perform {
+            try await AuthenticationService.shared.logout()
+            onSignedOut()
+        }
+    }
+
+    private func withdraw() {
+        perform {
+            try await AuthenticationService.shared.withdraw()
+            onSignedOut()
+        }
+    }
+
+    private func perform(
+        _ action: @escaping @MainActor () async throws -> Void
+    ) {
         isLoading = true
         errorMessage = nil
+
         Task { @MainActor in
-            defer { isLoading = false }
-            do { try await action() }
-            catch { errorMessage = error.localizedDescription }
+            defer {
+                isLoading = false
+            }
+
+            do {
+                try await action()
+            } catch {
+                errorMessage = error.localizedDescription
+            }
+        }
+    }
+}
+
+
+// MARK: - Change Password
+
+private struct ChangePasswordScreen: View {
+
+    let onPasswordChanged: () -> Void
+
+    @StateObject private var viewModel = ChangePasswordViewModel()
+
+    var body: some View {
+        ChangePasswordView(
+            viewModel: viewModel
+        ) {
+            onPasswordChanged()
         }
     }
 }
