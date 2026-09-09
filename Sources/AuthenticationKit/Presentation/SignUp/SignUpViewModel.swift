@@ -28,13 +28,22 @@ public final class SignUpViewModel: ObservableObject {
     }
 
     public func signUp() {
-        guard !email.isEmpty else {
+        let normalizedEmail = email
+            .trimmingCharacters(in: .whitespacesAndNewlines)
+            .lowercased()
+
+        guard !normalizedEmail.isEmpty else {
             errorMessage = "이메일을 입력해주세요."
             return
         }
 
         guard !password.isEmpty else {
             errorMessage = "비밀번호를 입력해주세요."
+            return
+        }
+
+        guard password.count >= 7 && password.count <= 20 else {
+            errorMessage = "비밀번호는 7자 이상 20자 이하로 입력해주세요."
             return
         }
 
@@ -58,7 +67,7 @@ public final class SignUpViewModel: ObservableObject {
         Task {
             do {
                 let session = try await authenticationService.signUp(
-                    email: email,
+                    email: normalizedEmail,
                     password: password
                 )
 
@@ -67,7 +76,10 @@ public final class SignUpViewModel: ObservableObject {
 
             } catch {
                 isLoading = false
-                errorMessage = error.localizedDescription
+                errorMessage = AuthenticationErrorMessageMapper.message(
+                    for: error,
+                    context: .signUp
+                )
             }
         }
     }
