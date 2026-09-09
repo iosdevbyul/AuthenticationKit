@@ -34,8 +34,12 @@ public struct ForgotPasswordView: View {
 
                 AuthenticationTextField(
                     title: "이메일",
-                    placeholder: "가입한 이메일을 입력해주세요.",
+                    placeholder: "이메일을 입력해주세요.",
                     text: $viewModel.email,
+                    keyboardType: .emailAddress,
+                    textContentType: .emailAddress,
+                    autocapitalization: .none,
+                    disableAutocorrection: true,
                     theme: theme
                 )
 

@@ -35,6 +35,10 @@ public struct SignUpView: View {
                         title: "이메일",
                         placeholder: "이메일을 입력해주세요.",
                         text: $viewModel.email,
+                        keyboardType: .emailAddress,
+                        textContentType: .emailAddress,
+                        autocapitalization: .none,
+                        disableAutocorrection: true,
                         theme: theme
                     )
 

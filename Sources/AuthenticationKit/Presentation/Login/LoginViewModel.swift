@@ -41,8 +41,12 @@ public final class LoginViewModel: ObservableObject {
 
         Task {
             do {
+                let normalizedEmail = email
+                    .trimmingCharacters(in: .whitespacesAndNewlines)
+                    .lowercased()
+
                 let session = try await authenticationService.login(
-                    email: email,
+                    email: normalizedEmail,
                     password: password
                 )
 
@@ -51,7 +55,10 @@ public final class LoginViewModel: ObservableObject {
 
             } catch {
                 isLoading = false
-                errorMessage = error.localizedDescription
+                errorMessage = AuthenticationErrorMessageMapper.message(
+                    for: error,
+                    context: .login
+                )
             }
         }
     }
