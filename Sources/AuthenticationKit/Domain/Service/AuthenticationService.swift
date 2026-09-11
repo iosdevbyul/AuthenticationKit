@@ -18,6 +18,8 @@ public final class AuthenticationService: @unchecked Sendable {
     private let changePasswordUseCase: ChangePasswordUseCase
     private let repository: any AuthenticationRepository
     private let sessionManager: SessionManager
+    private let requestEmailChangeUseCase: RequestEmailChangeUseCase
+    private let confirmEmailChangeUseCase: ConfirmEmailChangeUseCase
 
     public var currentSession: Session? {
         sessionManager.currentSession
@@ -74,6 +76,14 @@ public final class AuthenticationService: @unchecked Sendable {
         )
 
         self.changePasswordUseCase = ChangePasswordUseCase(
+            repository: repository
+        )
+        
+        self.requestEmailChangeUseCase = RequestEmailChangeUseCase(
+            repository: repository
+        )
+
+        self.confirmEmailChangeUseCase = ConfirmEmailChangeUseCase(
             repository: repository
         )
     }
@@ -155,5 +165,34 @@ public final class AuthenticationService: @unchecked Sendable {
 
     public func restoreSession() throws {
         try sessionManager.restoreSession()
+    }
+    
+    public func requestEmailChange(
+        currentPassword: String,
+        newEmail: String
+    ) async throws {
+        try await requestEmailChangeUseCase.execute(
+            currentPassword: currentPassword,
+            newEmail: newEmail
+        )
+    }
+
+    public func confirmEmailChange(token: String) async throws {
+        let expectedSession = sessionManager.currentSession
+
+        try await confirmEmailChangeUseCase.execute(
+            token: token
+        )
+
+        guard let expectedSession else {
+            return
+        }
+
+        let user = try await repository.currentUser()
+
+        try sessionManager.updateUser(
+            user,
+            for: expectedSession
+        )
     }
 }
