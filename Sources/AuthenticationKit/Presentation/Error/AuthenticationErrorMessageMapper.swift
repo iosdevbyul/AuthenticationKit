@@ -18,6 +18,8 @@ enum AuthenticationErrorContext {
     case resendVerificationEmail
     case session
     case withdrawal
+    case requestEmailChange
+    case confirmEmailChange
 }
 
 enum AuthenticationErrorMessageMapper {
@@ -113,7 +115,8 @@ enum AuthenticationErrorMessageMapper {
 
             case .forgotPassword:
                 return "이메일 주소를 다시 확인해주세요."
-
+            case .confirmEmailChange:
+                return "이메일 변경 링크가 유효하지 않거나 만료되었습니다."
             default:
                 return "입력한 정보를 다시 확인해주세요."
             }
@@ -122,10 +125,9 @@ enum AuthenticationErrorMessageMapper {
             switch context {
             case .login:
                 return "이메일 또는 비밀번호가 올바르지 않습니다."
-
-            case .changePassword:
+            case .changePassword,
+                 .requestEmailChange:
                 return "현재 비밀번호가 올바르지 않거나 로그인이 만료되었습니다."
-
             default:
                 return "로그인이 만료되었습니다. 다시 로그인해주세요."
             }
@@ -140,7 +142,9 @@ enum AuthenticationErrorMessageMapper {
             switch context {
             case .signUp:
                 return "이미 사용 중인 이메일입니다."
-
+            case .requestEmailChange,
+                 .confirmEmailChange:
+                return "이미 사용 중인 이메일입니다."
             default:
                 return "이미 처리된 요청입니다."
             }
