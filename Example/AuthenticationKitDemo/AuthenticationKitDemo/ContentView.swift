@@ -7,7 +7,9 @@ struct ContentView: View {
     @State private var isRestoringSession = true
     @State private var verificationLink: VerificationDestination?
     @State private var invalidVerificationLink = false
-
+    @State private var emailChangeLink: EmailChangeDestination?
+    @State private var invalidEmailChangeLink = false
+    
     var body: some View {
         Group {
             if isRestoringSession {
@@ -32,12 +34,34 @@ struct ContentView: View {
             await restoreSession()
         }
         .onOpenURL { url in
-            guard url.scheme?.lowercased() == "waktrainer", url.host == "verify-email" else { return }
-            guard let link = EmailVerificationLink(url: url) else {
-                invalidVerificationLink = true
+            guard url.scheme?.lowercased() == "waktrainer" else {
                 return
             }
-            verificationLink = VerificationDestination(token: link.token)
+
+            switch url.host {
+            case "verify-email":
+                guard let link = EmailVerificationLink(url: url) else {
+                    invalidVerificationLink = true
+                    return
+                }
+
+                verificationLink = VerificationDestination(
+                    token: link.token
+                )
+
+            case "change-email":
+                guard let link = EmailChangeLink(url: url) else {
+                    invalidEmailChangeLink = true
+                    return
+                }
+
+                emailChangeLink = EmailChangeDestination(
+                    token: link.token
+                )
+
+            default:
+                return
+            }
         }
         .sheet(item: Binding(
             get: { isRestoringSession ? nil : verificationLink },
@@ -48,7 +72,24 @@ struct ContentView: View {
                     session = AuthenticationService.shared.currentSession
                 }
                 .toolbar {
-                    Button("닫기") { verificationLink = nil }
+                    Button("닫기") {
+                        verificationLink = nil
+                    }
+                }
+            }
+        }
+        .sheet(item: Binding(
+            get: { isRestoringSession ? nil : emailChangeLink },
+            set: { emailChangeLink = $0 }
+        )) { destination in
+            NavigationStack {
+                EmailChangeScreen(token: destination.token) {
+                    session = AuthenticationService.shared.currentSession
+                }
+                .toolbar {
+                    Button("닫기") {
+                        emailChangeLink = nil
+                    }
                 }
             }
         }
@@ -56,6 +97,11 @@ struct ContentView: View {
             Button("확인", role: .cancel) {}
         } message: {
             Text("인증 링크가 유효하지 않거나 만료되었습니다.")
+        }
+        .alert("이메일 변경", isPresented: $invalidEmailChangeLink) {
+            Button("확인", role: .cancel) {}
+        } message: {
+            Text("이메일 변경 링크가 유효하지 않거나 만료되었습니다.")
         }
     }
 
@@ -322,6 +368,7 @@ private struct SettingsView: View {
                 NavigationLink {
                     AccountSettingsView(
                         session: session,
+                        onSessionChanged: onSessionChanged,
                         onSignedOut: onSignedOut
                     )
                 } label: {
@@ -436,6 +483,7 @@ private struct SettingsView: View {
 private struct AccountSettingsView: View {
 
     let session: Session
+    let onSessionChanged: (Session) -> Void
     let onSignedOut: () -> Void
 
     @State private var isLoading = false
@@ -450,6 +498,19 @@ private struct AccountSettingsView: View {
                     "이메일",
                     value: session.user.email
                 )
+                
+                NavigationLink {
+                    EmailChangeScreen {
+                        if let updated = AuthenticationService.shared.currentSession {
+                            onSessionChanged(updated)
+                        }
+                    }
+                } label: {
+                    Label(
+                        "이메일 변경",
+                        systemImage: "envelope.badge"
+                    )
+                }
 
                 NavigationLink {
                     ChangePasswordScreen(
@@ -623,5 +684,56 @@ private struct EmailVerificationScreen: View {
                 didHandleLink = true
                 await viewModel.verifyEmail()
             }
+    }
+}
+
+// MARK: - Email Change
+
+private struct EmailChangeDestination: Identifiable {
+    let id = UUID()
+    let token: String
+}
+
+private struct EmailChangeScreen: View {
+
+    @StateObject private var viewModel: EmailChangeViewModel
+    @State private var didHandleLink = false
+
+    let onEmailChanged: () -> Void
+
+    init(
+        token: String? = nil,
+        onEmailChanged: @escaping () -> Void
+    ) {
+        _viewModel = StateObject(
+            wrappedValue: EmailChangeViewModel(
+                token: token
+            )
+        )
+
+        self.onEmailChanged = onEmailChanged
+    }
+
+    var body: some View {
+        EmailChangeView(
+            viewModel: viewModel
+        )
+        .navigationTitle("이메일 변경")
+        .navigationBarTitleDisplayMode(.inline)
+        .onAppear {
+            viewModel.onEmailChangeConfirmed = { _ in
+                onEmailChanged()
+            }
+        }
+        .task {
+            guard !didHandleLink,
+                  viewModel.hasConfirmationToken
+            else {
+                return
+            }
+
+            didHandleLink = true
+            await viewModel.confirmEmailChange()
+        }
     }
 }

@@ -63,7 +63,6 @@ public struct EmailChangeView: View {
                 title: "현재 비밀번호",
                 placeholder: "현재 비밀번호를 입력해주세요.",
                 text: $viewModel.currentPassword,
-                textContentType: .password,
                 theme: theme
             )
 
