@@ -131,4 +131,26 @@ public final class NetworkAuthenticationRepository: AuthenticationRepository, Se
             responseType: EmptyResponse.self
         )
     }
+    
+    public func requestEmailChange(
+        currentPassword: String,
+        newEmail: String
+    ) async throws {
+        let _: EmptyResponse = try await networkClient.request(
+            endpoint: AuthenticationEndpoint.requestEmailChange(
+                currentPassword: currentPassword,
+                newEmail: newEmail
+            ),
+            responseType: EmptyResponse.self
+        )
+    }
+
+    public func confirmEmailChange(token: String) async throws {
+        let _: EmptyResponse = try await networkClient.request(
+            endpoint: AuthenticationEndpoint.confirmEmailChange(
+                token: token
+            ),
+            responseType: EmptyResponse.self
+        )
+    }
 }
