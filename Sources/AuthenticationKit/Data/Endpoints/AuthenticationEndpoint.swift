@@ -35,6 +35,13 @@ public enum AuthenticationEndpoint {
         currentPassword: String,
         newPassword: String
     )
+    
+    case requestEmailChange(
+        currentPassword: String,
+        newEmail: String
+    )
+
+    case confirmEmailChange(token: String)
 }
 
 extension AuthenticationEndpoint: Endpoint {
@@ -63,12 +70,26 @@ extension AuthenticationEndpoint: Endpoint {
             return "/auth/forgot-password"
         case .changePassword:
             return "/auth/change-password"
+        case .requestEmailChange:
+            return "/auth/request-email-change"
+        case .confirmEmailChange:
+            return "/auth/confirm-email-change"
         }
     }
 
     public var method: HTTPMethod {
         switch self {
-        case .login, .signUp, .logout, .forgotPassword, .changePassword, .refresh, .resetPassword, .verifyEmail, .resendVerificationEmail:
+        case .login,
+             .signUp,
+             .logout,
+             .forgotPassword,
+             .changePassword,
+             .refresh,
+             .resetPassword,
+             .verifyEmail,
+             .resendVerificationEmail,
+             .requestEmailChange,
+             .confirmEmailChange:
             return .post
         case .currentUser:
             return .get
@@ -129,6 +150,20 @@ extension AuthenticationEndpoint: Endpoint {
                 newPassword: newPassword
             )
             return try? JSONEncoder().encode(body)
+        case let .requestEmailChange(currentPassword, newEmail):
+            return try? JSONEncoder().encode(
+                RequestEmailChangeRequestDTO(
+                    currentPassword: currentPassword,
+                    newEmail: newEmail
+                )
+            )
+
+        case let .confirmEmailChange(token):
+            return try? JSONEncoder().encode(
+                ConfirmEmailChangeRequestDTO(
+                    token: token
+                )
+            )
         }
     }
 }
