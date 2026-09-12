@@ -260,4 +260,136 @@ struct NetworkAuthenticationRepositoryTests {
             json["newPassword"] as? String == "new-password"
         )
     }
+    
+    // MARK: - Email Change
+
+    @Test
+    func requestEmailChangeCreatesCorrectEndpoint() async throws {
+        let networkClient = MockNetworkClient()
+        networkClient.response = EmptyResponse()
+
+        let repository = NetworkAuthenticationRepository(
+            networkClient: networkClient
+        )
+
+        try await repository.requestEmailChange(
+            currentPassword: "current-password",
+            newEmail: "New@Test.com"
+        )
+
+        let endpoint = try #require(
+            networkClient.requestedEndpoint
+        )
+
+        #expect(
+            endpoint.path == "/auth/request-email-change"
+        )
+
+        #expect(
+            endpoint.method == .post
+        )
+
+        #expect(
+            endpoint.headers["Content-Type"] == "application/json"
+        )
+    }
+
+    @Test
+    func requestEmailChangeEndpointContainsCurrentPasswordAndNewEmail() async throws {
+        let networkClient = MockNetworkClient()
+        networkClient.response = EmptyResponse()
+
+        let repository = NetworkAuthenticationRepository(
+            networkClient: networkClient
+        )
+
+        try await repository.requestEmailChange(
+            currentPassword: "current-password",
+            newEmail: "New@Test.com"
+        )
+
+        let endpoint = try #require(
+            networkClient.requestedEndpoint
+        )
+
+        let body = try #require(
+            endpoint.body
+        )
+
+        let json = try #require(
+            JSONSerialization.jsonObject(
+                with: body
+            ) as? [String: Any]
+        )
+
+        #expect(
+            json["currentPassword"] as? String == "current-password"
+        )
+
+        #expect(
+            json["newEmail"] as? String == "New@Test.com"
+        )
+    }
+
+    @Test
+    func confirmEmailChangeCreatesCorrectEndpoint() async throws {
+        let networkClient = MockNetworkClient()
+        networkClient.response = EmptyResponse()
+
+        let repository = NetworkAuthenticationRepository(
+            networkClient: networkClient
+        )
+
+        try await repository.confirmEmailChange(
+            token: "email-change-token"
+        )
+
+        let endpoint = try #require(
+            networkClient.requestedEndpoint
+        )
+
+        #expect(
+            endpoint.path == "/auth/confirm-email-change"
+        )
+
+        #expect(
+            endpoint.method == .post
+        )
+
+        #expect(
+            endpoint.headers["Content-Type"] == "application/json"
+        )
+    }
+
+    @Test
+    func confirmEmailChangeEndpointContainsToken() async throws {
+        let networkClient = MockNetworkClient()
+        networkClient.response = EmptyResponse()
+
+        let repository = NetworkAuthenticationRepository(
+            networkClient: networkClient
+        )
+
+        try await repository.confirmEmailChange(
+            token: "email-change-token"
+        )
+
+        let endpoint = try #require(
+            networkClient.requestedEndpoint
+        )
+
+        let body = try #require(
+            endpoint.body
+        )
+
+        let json = try #require(
+            JSONSerialization.jsonObject(
+                with: body
+            ) as? [String: Any]
+        )
+
+        #expect(
+            json["token"] as? String == "email-change-token"
+        )
+    }
 }
