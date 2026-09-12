@@ -222,11 +222,15 @@ public final class AuthenticationService: @unchecked Sendable {
     }
 
     public func revokeSession(
-        id: String
+        _ session: ManagedSession
     ) async throws {
         try await revokeSessionUseCase.execute(
-            id: id
+            id: session.id
         )
+
+        if session.isCurrent {
+            try sessionManager.clearSession()
+        }
     }
 
     public func logoutOtherSessions() async throws {
@@ -235,7 +239,6 @@ public final class AuthenticationService: @unchecked Sendable {
 
     public func logoutAllSessions() async throws {
         try await logoutAllSessionsUseCase.execute()
-
-        sessionManager.clearSession()
+        try sessionManager.clearSession()
     }
 }
