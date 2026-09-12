@@ -392,4 +392,167 @@ struct NetworkAuthenticationRepositoryTests {
             json["token"] as? String == "email-change-token"
         )
     }
+    
+    // MARK: - Session Management
+
+    @Test
+    func sessionsCreatesCorrectEndpoint() async throws {
+        let networkClient = MockNetworkClient()
+
+        networkClient.response = SessionListResponseDTO(
+            sessions: []
+        )
+
+        let repository = NetworkAuthenticationRepository(
+            networkClient: networkClient
+        )
+
+        _ = try await repository.sessions()
+
+        let endpoint = try #require(
+            networkClient.requestedEndpoint
+        )
+
+        #expect(
+            endpoint.path == "/auth/sessions"
+        )
+
+        #expect(
+            endpoint.method == .get
+        )
+
+        #expect(
+            endpoint.body == nil
+        )
+    }
+
+    @Test
+    func sessionsMapsResponseToManagedSessions() async throws {
+        let networkClient = MockNetworkClient()
+
+        let startedAt = Date()
+        let expiresAt = startedAt.addingTimeInterval(3600)
+        let lastRefreshedAt = startedAt.addingTimeInterval(600)
+
+        networkClient.response = SessionListResponseDTO(
+            sessions: [
+                ManagedSessionResponseDTO(
+                    id: "session-1",
+                    createdAt: startedAt,
+                    startedAt: startedAt,
+                    expiresAt: expiresAt,
+                    lastRefreshedAt: lastRefreshedAt,
+                    isCurrent: true,
+                    deviceName: "iPhone"
+                )
+            ]
+        )
+
+        let repository = NetworkAuthenticationRepository(
+            networkClient: networkClient
+        )
+
+        let sessions = try await repository.sessions()
+
+        let session = try #require(
+            sessions.first
+        )
+
+        #expect(session.id == "session-1")
+        #expect(session.createdAt == startedAt)
+        #expect(session.startedAt == startedAt)
+        #expect(session.expiresAt == expiresAt)
+        #expect(session.lastRefreshedAt == lastRefreshedAt)
+        #expect(session.isCurrent)
+        #expect(session.deviceName == "iPhone")
+    }
+
+    @Test
+    func revokeSessionCreatesCorrectEndpoint() async throws {
+        let networkClient = MockNetworkClient()
+
+        networkClient.response = EmptyResponse()
+
+        let repository = NetworkAuthenticationRepository(
+            networkClient: networkClient
+        )
+
+        try await repository.revokeSession(
+            id: "session-1"
+        )
+
+        let endpoint = try #require(
+            networkClient.requestedEndpoint
+        )
+
+        #expect(
+            endpoint.path == "/auth/sessions/session-1"
+        )
+
+        #expect(
+            endpoint.method == .delete
+        )
+
+        #expect(
+            endpoint.body == nil
+        )
+    }
+
+    @Test
+    func logoutOtherSessionsCreatesCorrectEndpoint() async throws {
+        let networkClient = MockNetworkClient()
+
+        networkClient.response = EmptyResponse()
+
+        let repository = NetworkAuthenticationRepository(
+            networkClient: networkClient
+        )
+
+        try await repository.logoutOtherSessions()
+
+        let endpoint = try #require(
+            networkClient.requestedEndpoint
+        )
+
+        #expect(
+            endpoint.path == "/auth/logout-other-sessions"
+        )
+
+        #expect(
+            endpoint.method == .post
+        )
+
+        #expect(
+            endpoint.body == nil
+        )
+    }
+
+    @Test
+    func logoutAllSessionsCreatesCorrectEndpoint() async throws {
+        let networkClient = MockNetworkClient()
+
+        networkClient.response = EmptyResponse()
+
+        let repository = NetworkAuthenticationRepository(
+            networkClient: networkClient
+        )
+
+        try await repository.logoutAllSessions()
+
+        let endpoint = try #require(
+            networkClient.requestedEndpoint
+        )
+
+        #expect(
+            endpoint.path == "/auth/logout-all"
+        )
+
+        #expect(
+            endpoint.method == .post
+        )
+
+        #expect(
+            endpoint.body == nil
+        )
+    }
 }
