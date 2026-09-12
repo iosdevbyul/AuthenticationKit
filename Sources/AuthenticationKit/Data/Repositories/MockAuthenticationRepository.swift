@@ -15,6 +15,9 @@ public struct MockAuthenticationRepository: AuthenticationRepository {
     private let shouldFailSignUp: Bool
     private let shouldFailForgotPassword: Bool
     private let shouldFailChangePassword: Bool
+    var requestEmailChangeCurrentPassword: String?
+    var requestEmailChangeNewEmail: String?
+    var confirmEmailChangeToken: String?
     
     public init(
         shouldFailWithdrawal: Bool = false,
@@ -99,5 +102,19 @@ public struct MockAuthenticationRepository: AuthenticationRepository {
         if shouldFailChangePassword {
             throw AuthenticationError.invalidInput
         }
+    }
+    
+    public mutating func requestEmailChange(
+        currentPassword: String,
+        newEmail: String
+    ) async throws {
+        requestEmailChangeCurrentPassword = currentPassword
+        requestEmailChangeNewEmail = newEmail
+    }
+
+    public mutating func confirmEmailChange(
+        token: String
+    ) async throws {
+        confirmEmailChangeToken = token
     }
 }
