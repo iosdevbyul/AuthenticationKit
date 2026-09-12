@@ -28,6 +28,11 @@ public final class AuthenticationService: @unchecked Sendable {
     public var isAuthenticated: Bool {
         sessionManager.isAuthenticated
     }
+    
+    private let getSessionsUseCase: GetSessionsUseCase
+    private let revokeSessionUseCase: RevokeSessionUseCase
+    private let logoutOtherSessionsUseCase: LogoutOtherSessionsUseCase
+    private let logoutAllSessionsUseCase: LogoutAllSessionsUseCase
 
     internal convenience init(session: URLSession = .shared) {
         guard let baseURL = AuthenticationConfiguration.shared.baseURL else {
@@ -84,6 +89,22 @@ public final class AuthenticationService: @unchecked Sendable {
         )
 
         self.confirmEmailChangeUseCase = ConfirmEmailChangeUseCase(
+            repository: repository
+        )
+        
+        self.getSessionsUseCase = GetSessionsUseCase(
+            repository: repository
+        )
+
+        self.revokeSessionUseCase = RevokeSessionUseCase(
+            repository: repository
+        )
+
+        self.logoutOtherSessionsUseCase = LogoutOtherSessionsUseCase(
+            repository: repository
+        )
+
+        self.logoutAllSessionsUseCase = LogoutAllSessionsUseCase(
             repository: repository
         )
     }
@@ -194,5 +215,27 @@ public final class AuthenticationService: @unchecked Sendable {
             user,
             for: expectedSession
         )
+    }
+    
+    public func sessions() async throws -> [ManagedSession] {
+        try await getSessionsUseCase.execute()
+    }
+
+    public func revokeSession(
+        id: String
+    ) async throws {
+        try await revokeSessionUseCase.execute(
+            id: id
+        )
+    }
+
+    public func logoutOtherSessions() async throws {
+        try await logoutOtherSessionsUseCase.execute()
+    }
+
+    public func logoutAllSessions() async throws {
+        try await logoutAllSessionsUseCase.execute()
+
+        sessionManager.clearSession()
     }
 }
