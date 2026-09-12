@@ -7,35 +7,56 @@
 
 import Foundation
 
-public struct MockAuthenticationRepository: AuthenticationRepository {
+public final class MockAuthenticationRepository:
+    AuthenticationRepository,
+    @unchecked Sendable {
 
     private let testEmail = "test@test.com"
     private let testPassword = "1234"
+
     private let shouldFailWithdrawal: Bool
     private let shouldFailSignUp: Bool
     private let shouldFailForgotPassword: Bool
     private let shouldFailChangePassword: Bool
+
     var requestEmailChangeCurrentPassword: String?
     var requestEmailChangeNewEmail: String?
     var confirmEmailChangeToken: String?
-    
+
+    public var currentUserResponse: User?
+
     public init(
         shouldFailWithdrawal: Bool = false,
         shouldFailSignUp: Bool = false,
         shouldFailForgotPassword: Bool = false,
-        shouldFailChangePassword: Bool = false
+        shouldFailChangePassword: Bool = false,
+        currentUserResponse: User? = nil
     ) {
         self.shouldFailWithdrawal = shouldFailWithdrawal
         self.shouldFailSignUp = shouldFailSignUp
         self.shouldFailForgotPassword = shouldFailForgotPassword
         self.shouldFailChangePassword = shouldFailChangePassword
+        self.currentUserResponse = currentUserResponse
+    }
+
+    public func currentUser() async throws -> User {
+        if let currentUserResponse {
+            return currentUserResponse
+        }
+
+        return User(
+            id: "mock-user-id",
+            email: testEmail
+        )
     }
 
     public func login(
         email: String,
         password: String
     ) async throws -> Session {
-        guard email == testEmail, password == testPassword else {
+        guard email == testEmail,
+              password == testPassword
+        else {
             throw AuthenticationError.invalidCredentials
         }
 
@@ -58,8 +79,10 @@ public struct MockAuthenticationRepository: AuthenticationRepository {
         if shouldFailSignUp {
             throw AuthenticationError.invalidInput
         }
-        
-        guard !email.isEmpty, !password.isEmpty else {
+
+        guard !email.isEmpty,
+              !password.isEmpty
+        else {
             throw AuthenticationError.invalidInput
         }
 
@@ -75,17 +98,17 @@ public struct MockAuthenticationRepository: AuthenticationRepository {
         )
     }
 
-    public func logout() async throws {
-        // Mock에서는 서버 요청 없이 성공으로 처리
-    }
+    public func logout() async throws {}
 
     public func withdraw() async throws {
         if shouldFailWithdrawal {
             throw AuthenticationError.withdrawalFailed
         }
     }
-    
-    public func forgotPassword(email: String) async throws {
+
+    public func forgotPassword(
+        email: String
+    ) async throws {
         if shouldFailForgotPassword {
             throw AuthenticationError.invalidInput
         }
@@ -94,7 +117,7 @@ public struct MockAuthenticationRepository: AuthenticationRepository {
             throw AuthenticationError.invalidInput
         }
     }
-    
+
     public func changePassword(
         currentPassword: String,
         newPassword: String
@@ -103,8 +126,8 @@ public struct MockAuthenticationRepository: AuthenticationRepository {
             throw AuthenticationError.invalidInput
         }
     }
-    
-    public mutating func requestEmailChange(
+
+    public func requestEmailChange(
         currentPassword: String,
         newEmail: String
     ) async throws {
@@ -112,7 +135,7 @@ public struct MockAuthenticationRepository: AuthenticationRepository {
         requestEmailChangeNewEmail = newEmail
     }
 
-    public mutating func confirmEmailChange(
+    public func confirmEmailChange(
         token: String
     ) async throws {
         confirmEmailChangeToken = token

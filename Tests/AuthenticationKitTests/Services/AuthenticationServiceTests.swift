@@ -244,4 +244,75 @@ struct AuthenticationServiceTests {
         #expect(service.isAuthenticated)
         #expect(service.currentSession == session)
     }
+    
+    // MARK: - Email Change
+
+    @Test
+    func requestEmailChangeSuccessCompletes() async throws {
+        let repository = MockAuthenticationRepository()
+        let tokenStorage = MockTokenStorage()
+
+        let service = AuthenticationService(
+            repository: repository,
+            tokenStorage: tokenStorage
+        )
+
+        try await service.requestEmailChange(
+            currentPassword: "1234",
+            newEmail: "new@test.com"
+        )
+    }
+
+    @Test
+    func confirmEmailChangeUpdatesCurrentSessionUser() async throws {
+        let updatedUser = User(
+            id: "mock-user-id",
+            email: "new@test.com",
+            isEmailVerified: true
+        )
+
+        let repository = MockAuthenticationRepository(
+            currentUserResponse: updatedUser
+        )
+
+        let tokenStorage = MockTokenStorage()
+
+        let service = AuthenticationService(
+            repository: repository,
+            tokenStorage: tokenStorage
+        )
+
+        let originalSession = try await service.login(
+            email: "test@test.com",
+            password: "1234"
+        )
+
+        try await service.confirmEmailChange(
+            token: "email-change-token"
+        )
+
+        let updatedSession = try #require(
+            service.currentSession
+        )
+
+        #expect(
+            updatedSession.user.email == "new@test.com"
+        )
+
+        #expect(
+            updatedSession.user.isEmailVerified
+        )
+
+        #expect(
+            updatedSession.accessToken == originalSession.accessToken
+        )
+
+        #expect(
+            updatedSession.refreshToken == originalSession.refreshToken
+        )
+
+        #expect(
+            tokenStorage.savedSession == updatedSession
+        )
+    }
 }
