@@ -315,4 +315,163 @@ struct AuthenticationServiceTests {
             tokenStorage.savedSession == updatedSession
         )
     }
+    
+    // MARK: - Session Management
+
+    @Test
+    func sessionsReturnsManagedSessions() async throws {
+        let repository = MockAuthenticationRepository()
+        let tokenStorage = MockTokenStorage()
+
+        let expected = [
+            ManagedSession(
+                id: "session-1",
+                createdAt: nil,
+                startedAt: nil,
+                expiresAt: .distantFuture,
+                lastRefreshedAt: nil,
+                isCurrent: true,
+                deviceName: "iPhone"
+            )
+        ]
+
+        repository.sessionsResponse = expected
+
+        let service = AuthenticationService(
+            repository: repository,
+            tokenStorage: tokenStorage
+        )
+
+        let sessions = try await service.sessions()
+
+        #expect(sessions == expected)
+    }
+
+    @Test
+    func revokeOtherSessionKeepsCurrentSession() async throws {
+        let repository = MockAuthenticationRepository()
+        let tokenStorage = MockTokenStorage()
+
+        let service = AuthenticationService(
+            repository: repository,
+            tokenStorage: tokenStorage
+        )
+
+        let currentSession = try await service.login(
+            email: "test@test.com",
+            password: "1234"
+        )
+
+        let managedSession = ManagedSession(
+            id: "other-session",
+            createdAt: nil,
+            startedAt: nil,
+            expiresAt: .distantFuture,
+            lastRefreshedAt: nil,
+            isCurrent: false,
+            deviceName: "iPad"
+        )
+
+        try await service.revokeSession(
+            managedSession
+        )
+
+        #expect(
+            repository.revokedSessionID == "other-session"
+        )
+
+        #expect(service.isAuthenticated)
+        #expect(service.currentSession == currentSession)
+        #expect(tokenStorage.savedSession == currentSession)
+    }
+
+    @Test
+    func revokeCurrentSessionClearsLocalSession() async throws {
+        let repository = MockAuthenticationRepository()
+        let tokenStorage = MockTokenStorage()
+
+        let service = AuthenticationService(
+            repository: repository,
+            tokenStorage: tokenStorage
+        )
+
+        _ = try await service.login(
+            email: "test@test.com",
+            password: "1234"
+        )
+
+        let managedSession = ManagedSession(
+            id: "current-session",
+            createdAt: nil,
+            startedAt: nil,
+            expiresAt: .distantFuture,
+            lastRefreshedAt: nil,
+            isCurrent: true,
+            deviceName: "iPhone"
+        )
+
+        try await service.revokeSession(
+            managedSession
+        )
+
+        #expect(
+            repository.revokedSessionID == "current-session"
+        )
+
+        #expect(!service.isAuthenticated)
+        #expect(service.currentSession == nil)
+        #expect(tokenStorage.savedSession == nil)
+    }
+
+    @Test
+    func logoutOtherSessionsKeepsCurrentSession() async throws {
+        let repository = MockAuthenticationRepository()
+        let tokenStorage = MockTokenStorage()
+
+        let service = AuthenticationService(
+            repository: repository,
+            tokenStorage: tokenStorage
+        )
+
+        let currentSession = try await service.login(
+            email: "test@test.com",
+            password: "1234"
+        )
+
+        try await service.logoutOtherSessions()
+
+        #expect(
+            repository.didLogoutOtherSessions
+        )
+
+        #expect(service.isAuthenticated)
+        #expect(service.currentSession == currentSession)
+        #expect(tokenStorage.savedSession == currentSession)
+    }
+
+    @Test
+    func logoutAllSessionsClearsLocalSession() async throws {
+        let repository = MockAuthenticationRepository()
+        let tokenStorage = MockTokenStorage()
+
+        let service = AuthenticationService(
+            repository: repository,
+            tokenStorage: tokenStorage
+        )
+
+        _ = try await service.login(
+            email: "test@test.com",
+            password: "1234"
+        )
+
+        try await service.logoutAllSessions()
+
+        #expect(
+            repository.didLogoutAllSessions
+        )
+
+        #expect(!service.isAuthenticated)
+        #expect(service.currentSession == nil)
+        #expect(tokenStorage.savedSession == nil)
+    }
 }
