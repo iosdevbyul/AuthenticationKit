@@ -153,4 +153,38 @@ public final class NetworkAuthenticationRepository: AuthenticationRepository, Se
             responseType: EmptyResponse.self
         )
     }
+    
+    public func sessions() async throws -> [ManagedSession] {
+        let response = try await networkClient.request(
+            endpoint: AuthenticationEndpoint.sessions,
+            responseType: SessionListResponseDTO.self
+        )
+
+        return response.sessions.map {
+            $0.toDomain()
+        }
+    }
+
+    public func revokeSession(
+        id: String
+    ) async throws {
+        _ = try await networkClient.request(
+            endpoint: AuthenticationEndpoint.revokeSession(id: id),
+            responseType: EmptyResponse.self
+        )
+    }
+
+    public func logoutOtherSessions() async throws {
+        _ = try await networkClient.request(
+            endpoint: AuthenticationEndpoint.logoutOtherSessions,
+            responseType: EmptyResponse.self
+        )
+    }
+
+    public func logoutAllSessions() async throws {
+        _ = try await networkClient.request(
+            endpoint: AuthenticationEndpoint.logoutAllSessions,
+            responseType: EmptyResponse.self
+        )
+    }
 }

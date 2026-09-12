@@ -45,6 +45,14 @@ public protocol AuthenticationRepository: Sendable {
     ) async throws
 
     func confirmEmailChange(token: String) async throws
+    
+    func sessions() async throws -> [ManagedSession]
+
+    func revokeSession(id: String) async throws
+
+    func logoutOtherSessions() async throws
+
+    func logoutAllSessions() async throws
 }
 
 // Keep existing custom repositories source compatible; unsupported APIs fail explicitly.
@@ -62,6 +70,22 @@ public extension AuthenticationRepository {
     }
 
     func confirmEmailChange(token: String) async throws {
+        throw AuthenticationError.unsupportedOperation
+    }
+    
+    func sessions() async throws -> [ManagedSession] {
+        throw AuthenticationError.unsupportedOperation
+    }
+
+    func revokeSession(id: String) async throws {
+        throw AuthenticationError.unsupportedOperation
+    }
+
+    func logoutOtherSessions() async throws {
+        throw AuthenticationError.unsupportedOperation
+    }
+
+    func logoutAllSessions() async throws {
         throw AuthenticationError.unsupportedOperation
     }
 }
