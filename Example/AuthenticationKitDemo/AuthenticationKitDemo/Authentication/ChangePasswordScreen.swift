@@ -5,7 +5,10 @@
 //  Created by COMATOKI on 2026-09-12.
 //
 
-private struct ChangePasswordScreen: View {
+import SwiftUI
+import AuthenticationKit
+
+struct ChangePasswordScreen: View {
 
     let onPasswordChanged: () -> Void
 

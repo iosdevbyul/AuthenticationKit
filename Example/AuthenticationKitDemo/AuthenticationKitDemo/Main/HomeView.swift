@@ -5,7 +5,10 @@
 //  Created by COMATOKI on 2026-09-12.
 //
 
-private struct HomeView: View {
+import SwiftUI
+import AuthenticationKit
+
+struct HomeView: View {
 
     let session: Session
 

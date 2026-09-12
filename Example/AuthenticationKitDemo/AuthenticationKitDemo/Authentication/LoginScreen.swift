@@ -5,7 +5,10 @@
 //  Created by COMATOKI on 2026-09-12.
 //
 
-private struct LoginScreen: View {
+import SwiftUI
+import AuthenticationKit
+
+struct LoginScreen: View {
 
     let onAuthenticated: (Session) -> Void
 

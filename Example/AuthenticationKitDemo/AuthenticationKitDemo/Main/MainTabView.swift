@@ -5,7 +5,10 @@
 //  Created by COMATOKI on 2026-09-12.
 //
 
-private struct MainTabView: View {
+import SwiftUI
+import AuthenticationKit
+
+struct MainTabView: View {
 
     let session: Session
     let onSessionChanged: (Session) -> Void

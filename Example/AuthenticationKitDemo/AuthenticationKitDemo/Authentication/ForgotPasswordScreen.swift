@@ -5,7 +5,10 @@
 //  Created by COMATOKI on 2026-09-12.
 //
 
-private struct ForgotPasswordScreen: View {
+import SwiftUI
+import AuthenticationKit
+
+struct ForgotPasswordScreen: View {
 
     @StateObject private var viewModel = ForgotPasswordViewModel()
 

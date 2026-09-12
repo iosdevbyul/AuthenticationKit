@@ -5,7 +5,9 @@
 //  Created by COMATOKI on 2026-09-12.
 //
 
-private struct LaunchView: View {
+import SwiftUI
+
+struct LaunchView: View {
 
     var body: some View {
         VStack(spacing: 16) {

@@ -5,7 +5,10 @@
 //  Created by COMATOKI on 2026-09-12.
 //
 
-private struct EmailVerificationScreen: View {
+import SwiftUI
+import AuthenticationKit
+
+struct EmailVerificationScreen: View {
     @StateObject private var viewModel: EmailVerificationViewModel
     @State private var didHandleLink = false
     let onUserUpdated: () -> Void
@@ -29,7 +32,7 @@ private struct EmailVerificationScreen: View {
     }
 }
 
-private struct VerificationDestination: Identifiable {
+struct VerificationDestination: Identifiable {
     let id = UUID()
     let token: String
 }

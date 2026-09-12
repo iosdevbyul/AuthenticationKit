@@ -5,7 +5,10 @@
 //  Created by COMATOKI on 2026-09-12.
 //
 
-private struct EmailChangeScreen: View {
+import SwiftUI
+import AuthenticationKit
+
+struct EmailChangeScreen: View {
 
     @StateObject private var viewModel: EmailChangeViewModel
     @State private var didHandleLink = false
@@ -49,7 +52,7 @@ private struct EmailChangeScreen: View {
     }
 }
 
-private struct EmailChangeDestination: Identifiable {
+struct EmailChangeDestination: Identifiable {
     let id = UUID()
     let token: String
 }

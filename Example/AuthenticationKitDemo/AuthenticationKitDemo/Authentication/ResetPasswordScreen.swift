@@ -5,7 +5,10 @@
 //  Created by COMATOKI on 2026-09-12.
 //
 
-private struct ResetPasswordScreen: View {
+import SwiftUI
+import AuthenticationKit
+
+struct ResetPasswordScreen: View {
 
     @Environment(\.dismiss) private var dismiss
 

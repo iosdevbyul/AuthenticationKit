@@ -15,10 +15,15 @@ public struct SessionManagementView: View {
 
     public init(
         viewModel: SessionManagementViewModel = SessionManagementViewModel(),
-        theme: AuthenticationTheme = .default
+        theme: AuthenticationTheme = .default,
+        onCurrentSessionRevoked: (() -> Void)? = nil,
+        onAllSessionsLoggedOut: (() -> Void)? = nil
     ) {
         self.viewModel = viewModel
         self.theme = theme
+
+        viewModel.onCurrentSessionRevoked = onCurrentSessionRevoked
+        viewModel.onAllSessionsLoggedOut = onAllSessionsLoggedOut
     }
 
     public var body: some View {
