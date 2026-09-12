@@ -522,6 +522,22 @@ private struct AccountSettingsView: View {
                         systemImage: "lock"
                     )
                 }
+                
+                NavigationLink {
+                    SessionManagementView(
+                        onCurrentSessionRevoked: {
+                            onSignedOut()
+                        },
+                        onAllSessionsLoggedOut: {
+                            onSignedOut()
+                        }
+                    )
+                } label: {
+                    Label(
+                        "세션 관리",
+                        systemImage: "iphone.and.arrow.forward"
+                    )
+                }
             }
 
             Section {
