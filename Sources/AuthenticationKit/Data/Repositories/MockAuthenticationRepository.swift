@@ -25,6 +25,12 @@ public final class MockAuthenticationRepository:
 
     public var currentUserResponse: User?
 
+    public var sessionsResponse: [ManagedSession] = []
+
+    var revokedSessionID: String?
+    var didLogoutOtherSessions = false
+    var didLogoutAllSessions = false
+    
     public init(
         shouldFailWithdrawal: Bool = false,
         shouldFailSignUp: Bool = false,
@@ -139,5 +145,23 @@ public final class MockAuthenticationRepository:
         token: String
     ) async throws {
         confirmEmailChangeToken = token
+    }
+    
+    public func sessions() async throws -> [ManagedSession] {
+        sessionsResponse
+    }
+
+    public func revokeSession(
+        id: String
+    ) async throws {
+        revokedSessionID = id
+    }
+
+    public func logoutOtherSessions() async throws {
+        didLogoutOtherSessions = true
+    }
+
+    public func logoutAllSessions() async throws {
+        didLogoutAllSessions = true
     }
 }
