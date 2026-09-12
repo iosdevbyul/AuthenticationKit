@@ -42,6 +42,11 @@ public enum AuthenticationEndpoint {
     )
 
     case confirmEmailChange(token: String)
+    
+    case sessions
+    case revokeSession(id: String)
+    case logoutOtherSessions
+    case logoutAllSessions
 }
 
 extension AuthenticationEndpoint: Endpoint {
@@ -74,6 +79,14 @@ extension AuthenticationEndpoint: Endpoint {
             return "/auth/request-email-change"
         case .confirmEmailChange:
             return "/auth/confirm-email-change"
+        case .sessions:
+            return "/auth/sessions"
+        case let .revokeSession(id):
+            return "/auth/sessions/\(id)"
+        case .logoutOtherSessions:
+            return "/auth/logout-other-sessions"
+        case .logoutAllSessions:
+            return "/auth/logout-all"
         }
     }
 
@@ -89,11 +102,13 @@ extension AuthenticationEndpoint: Endpoint {
              .verifyEmail,
              .resendVerificationEmail,
              .requestEmailChange,
-             .confirmEmailChange:
+             .confirmEmailChange,
+             .logoutOtherSessions,
+             .logoutAllSessions:
             return .post
-        case .currentUser:
+        case .currentUser, .sessions:
             return .get
-        case .withdraw:
+        case .withdraw, .revokeSession:
             return .delete
         }
     }
@@ -134,7 +149,13 @@ extension AuthenticationEndpoint: Endpoint {
             return try? JSONEncoder().encode(RefreshTokenRequestDTO(refreshToken: refreshToken))
         case let .resetPassword(token, newPassword):
             return try? JSONEncoder().encode(ResetPasswordRequestDTO(token: token, newPassword: newPassword))
-        case .logout, .withdraw, .currentUser:
+        case .logout,
+                .withdraw,
+                .currentUser,
+                .sessions,
+                .revokeSession,
+                .logoutOtherSessions,
+                .logoutAllSessions:
             return nil
             
         case let .forgotPassword(email):
