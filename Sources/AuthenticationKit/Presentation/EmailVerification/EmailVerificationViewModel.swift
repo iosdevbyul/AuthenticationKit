@@ -4,7 +4,7 @@ import NetworkKit
 
 @MainActor
 public final class EmailVerificationViewModel: ObservableObject {
-    public static let resendMessage = "가입된 이메일인 경우 인증 메일이 전송됩니다."
+    public static var resendMessage: String { AuthL10n.string("error.verification_privacy") }
 
     @Published public var email: String
     @Published public private(set) var isEmailVerified: Bool
@@ -38,7 +38,7 @@ public final class EmailVerificationViewModel: ObservableObject {
             try await authenticationService.verifyEmail(token: token ?? "")
             token = nil
             didVerifyToken = true
-            message = "이메일 인증이 완료되었습니다."
+            message = AuthL10n.string("auth.email_verification.completed")
         } catch {
             errorMessage = AuthenticationErrorMessageMapper.message(for: error, context: .verifyEmail)
             return
@@ -47,7 +47,7 @@ public final class EmailVerificationViewModel: ObservableObject {
         if authenticationService.isAuthenticated {
             do { try await updateCurrentUser() }
             catch {
-                errorMessage = "인증은 완료되었지만 상태를 갱신하지 못했습니다. 다시 확인해주세요."
+                errorMessage = AuthL10n.string("auth.email_verification.refresh_failed")
             }
         }
     }
@@ -80,7 +80,7 @@ public final class EmailVerificationViewModel: ObservableObject {
         defer { isLoading = false }
         do {
             try await updateCurrentUser()
-            message = isEmailVerified ? "이메일 인증이 완료되었습니다." : "아직 이메일 인증이 확인되지 않았습니다."
+            message = isEmailVerified\n                ? AuthL10n.string("auth.email_verification.completed")\n                : AuthL10n.string("auth.email_verification.not_verified")
         } catch {
             errorMessage = AuthenticationErrorMessageMapper.message(for: error, context: .session)
         }

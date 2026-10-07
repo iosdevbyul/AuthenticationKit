@@ -31,7 +31,7 @@ enum AuthenticationErrorMessageMapper {
 
         if let authenticationError = error as? AuthenticationError {
             if context == .verifyEmail, authenticationError == .invalidInput {
-                return "인증 링크가 유효하지 않거나 만료되었습니다."
+                return AuthL10n.string("error.verification_link.invalid")
             }
             return authenticationMessage(authenticationError)
         }
@@ -47,7 +47,7 @@ enum AuthenticationErrorMessageMapper {
             return urlErrorMessage(urlError)
         }
 
-        return "요청 처리 중 문제가 발생했습니다. 잠시 후 다시 시도해주세요."
+        return AuthL10n.string("error.generic")
     }
 
     private static func authenticationMessage(
@@ -55,16 +55,16 @@ enum AuthenticationErrorMessageMapper {
     ) -> String {
         switch error {
         case .invalidCredentials:
-            return "이메일 또는 비밀번호가 올바르지 않습니다."
+            return AuthL10n.string("error.invalid_credentials")
 
         case .invalidInput:
-            return "입력한 정보를 다시 확인해주세요."
+            return AuthL10n.string("error.invalid_input")
 
         case .unsupportedOperation:
-            return "현재 지원하지 않는 기능입니다."
+            return AuthL10n.string("error.unsupported")
 
         case .withdrawalFailed:
-            return "회원탈퇴 처리에 실패했습니다. 잠시 후 다시 시도해주세요."
+            return AuthL10n.string("error.withdrawal_failed")
         }
     }
 
@@ -74,13 +74,13 @@ enum AuthenticationErrorMessageMapper {
     ) -> String {
         switch error {
         case .invalidURL:
-            return "서버 주소가 올바르지 않습니다."
+            return AuthL10n.string("error.invalid_url")
 
         case .invalidResponse:
-            return "서버 응답을 확인할 수 없습니다. 잠시 후 다시 시도해주세요."
+            return AuthL10n.string("error.invalid_response")
 
         case .decodingFailed:
-            return "서버 응답을 처리하지 못했습니다. 잠시 후 다시 시도해주세요."
+            return AuthL10n.string("error.decoding_failed")
 
         case .serverError(let statusCode):
             return serverMessage(
@@ -93,7 +93,7 @@ enum AuthenticationErrorMessageMapper {
                 return urlErrorMessage(urlError)
             }
 
-            return "네트워크 요청 중 문제가 발생했습니다. 잠시 후 다시 시도해주세요."
+            return AuthL10n.string("error.network_generic")
         }
     }
 
@@ -102,64 +102,64 @@ enum AuthenticationErrorMessageMapper {
         context: AuthenticationErrorContext
     ) -> String {
         if context == .resendVerificationEmail, [404, 409, 429].contains(statusCode) {
-            return "가입된 이메일인 경우 인증 메일이 전송됩니다."
+            return AuthL10n.string("error.verification_privacy")
         }
         switch statusCode {
         case 400:
             switch context {
             case .verifyEmail:
-                return "인증 링크가 유효하지 않거나 만료되었습니다."
+                return AuthL10n.string("error.verification_link.invalid")
 
             case .resetPassword:
-                return "비밀번호 재설정 링크가 유효하지 않거나 만료되었습니다."
+                return AuthL10n.string("error.reset_link.invalid")
 
             case .forgotPassword:
-                return "이메일 주소를 다시 확인해주세요."
+                return AuthL10n.string("validation.email.invalid")
             case .confirmEmailChange:
-                return "이메일 변경 링크가 유효하지 않거나 만료되었습니다."
+                return AuthL10n.string("error.email_change_link.invalid")
             default:
-                return "입력한 정보를 다시 확인해주세요."
+                return AuthL10n.string("error.invalid_input")
             }
 
         case 401:
             switch context {
             case .login:
-                return "이메일 또는 비밀번호가 올바르지 않습니다."
+                return AuthL10n.string("error.invalid_credentials")
             case .changePassword,
                  .requestEmailChange:
-                return "현재 비밀번호가 올바르지 않거나 로그인이 만료되었습니다."
+                return AuthL10n.string("error.session_or_password")
             default:
-                return "로그인이 만료되었습니다. 다시 로그인해주세요."
+                return AuthL10n.string("error.session_expired")
             }
 
         case 403:
-            return "요청을 수행할 권한이 없습니다."
+            return AuthL10n.string("error.forbidden")
 
         case 404:
-            return "요청한 정보를 찾을 수 없습니다."
+            return AuthL10n.string("error.not_found")
 
         case 409:
             switch context {
             case .signUp:
-                return "이미 사용 중인 이메일입니다."
+                return AuthL10n.string("error.email_in_use")
             case .requestEmailChange,
                  .confirmEmailChange:
-                return "이미 사용 중인 이메일입니다."
+                return AuthL10n.string("error.email_in_use")
             default:
-                return "이미 처리된 요청입니다."
+                return AuthL10n.string("error.already_processed")
             }
 
         case 422:
-            return "입력한 정보를 다시 확인해주세요."
+            return AuthL10n.string("error.invalid_input")
 
         case 429:
-            return "요청이 너무 많습니다. 잠시 후 다시 시도해주세요."
+            return AuthL10n.string("error.too_many_requests")
 
         case 500...599:
-            return "서버에 문제가 발생했습니다. 잠시 후 다시 시도해주세요."
+            return AuthL10n.string("error.server")
 
         default:
-            return "요청 처리 중 문제가 발생했습니다. 잠시 후 다시 시도해주세요."
+            return AuthL10n.string("error.generic")
         }
     }
 
@@ -168,21 +168,21 @@ enum AuthenticationErrorMessageMapper {
     ) -> String {
         switch error.code {
         case .notConnectedToInternet:
-            return "인터넷 연결을 확인해주세요."
+            return AuthL10n.string("error.no_internet")
 
         case .timedOut:
-            return "요청 시간이 초과되었습니다. 다시 시도해주세요."
+            return AuthL10n.string("error.timeout")
 
         case .cannotConnectToHost,
              .cannotFindHost,
              .dnsLookupFailed:
-            return "서버에 연결할 수 없습니다. 잠시 후 다시 시도해주세요."
+            return AuthL10n.string("error.cannot_connect")
 
         case .networkConnectionLost:
-            return "네트워크 연결이 끊어졌습니다. 다시 시도해주세요."
+            return AuthL10n.string("error.connection_lost")
 
         default:
-            return "네트워크 연결을 확인한 후 다시 시도해주세요."
+            return AuthL10n.string("error.check_network")
         }
     }
 }

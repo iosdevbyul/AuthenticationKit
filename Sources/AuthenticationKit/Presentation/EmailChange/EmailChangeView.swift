@@ -26,8 +26,8 @@ public struct EmailChangeView: View {
 
                 Text(
                     viewModel.hasConfirmationToken
-                    ? "이메일 변경 확인"
-                    : "이메일 변경"
+                    ? AuthL10n.string("auth.email_change.confirm_title")
+                    : AuthL10n.string("auth.email_change.title")
                 )
                 .font(.title)
                 .fontWeight(.bold)
@@ -60,15 +60,15 @@ public struct EmailChangeView: View {
         VStack(spacing: 16) {
 
             AuthenticationSecureField(
-                title: "현재 비밀번호",
-                placeholder: "현재 비밀번호를 입력해주세요.",
+                title: AuthL10n.string("auth.change.current_password"),
+                placeholder: AuthL10n.string("auth.change.current_password.placeholder"),
                 text: $viewModel.currentPassword,
                 theme: theme
             )
 
             AuthenticationTextField(
-                title: "새 이메일",
-                placeholder: "새 이메일을 입력해주세요.",
+                title: AuthL10n.string("auth.email_change.new_email"),
+                placeholder: AuthL10n.string("auth.email_change.new_email.placeholder"),
                 text: $viewModel.newEmail,
                 keyboardType: .emailAddress,
                 textContentType: .emailAddress,
@@ -77,7 +77,7 @@ public struct EmailChangeView: View {
                 theme: theme
             )
 
-            actionButton("이메일 변경 요청") {
+            actionButton(AuthL10n.string("auth.email_change.request")) {
                 await viewModel.requestEmailChange()
             }
         }
@@ -86,11 +86,11 @@ public struct EmailChangeView: View {
     private var confirmationContent: some View {
         VStack(spacing: 16) {
 
-            Text("새 이메일 주소로 변경을 완료합니다.")
+            Text(AuthL10n.string("auth.email_change.confirm_message"))
                 .font(.subheadline)
                 .foregroundColor(theme.secondaryText)
 
-            actionButton("이메일 변경 완료하기") {
+            actionButton(AuthL10n.string("auth.email_change.complete")) {
                 await viewModel.confirmEmailChange()
             }
         }
@@ -105,7 +105,7 @@ public struct EmailChangeView: View {
                 await perform()
             }
         } label: {
-            Text(viewModel.isLoading ? "처리 중…" : title)
+            Text(viewModel.isLoading ? AuthL10n.string("auth.processing") : title)
                 .font(.headline)
                 .foregroundColor(theme.button.foreground)
                 .frame(maxWidth: .infinity)

@@ -41,8 +41,8 @@ public struct LoginView: View {
 
                 VStack(spacing: 16) {
                     AuthenticationTextField(
-                        title: "이메일",
-                        placeholder: "이메일을 입력해주세요.",
+                        title: AuthL10n.string("auth.email"),
+                        placeholder: AuthL10n.string("auth.email.placeholder"),
                         text: $viewModel.email,
                         keyboardType: .emailAddress,
                         textContentType: .emailAddress,
@@ -52,8 +52,8 @@ public struct LoginView: View {
                     )
 
                     AuthenticationSecureField(
-                        title: "비밀번호",
-                        placeholder: "비밀번호를 입력해주세요.",
+                        title: AuthL10n.string("auth.password"),
+                        placeholder: AuthL10n.string("auth.password.placeholder"),
                         text: $viewModel.password,
                         theme: theme
                     )
@@ -69,7 +69,7 @@ public struct LoginView: View {
                 }
 
                 AuthenticationButton(
-                    title: "로그인",
+                    title: AuthL10n.string("auth.login"),
                     isEnabled: !viewModel.email.isEmpty
                         && !viewModel.password.isEmpty,
                     isLoading: viewModel.isLoading,
@@ -88,12 +88,12 @@ public struct LoginView: View {
 
     private var header: some View {
         VStack(spacing: 8) {
-            Text("로그인")
+            Text(AuthL10n.string("auth.login"))
                 .font(.title)
                 .fontWeight(.bold)
                 .foregroundColor(theme.text)
 
-            Text("계정에 로그인해주세요.")
+            Text(AuthL10n.string("auth.login.subtitle"))
                 .font(.subheadline)
                 .foregroundColor(theme.secondaryText)
         }
@@ -107,7 +107,7 @@ public struct LoginView: View {
             Button {
                 onForgotPassword?()
             } label: {
-                Text("비밀번호를 잊으셨나요?")
+                Text(AuthL10n.string("auth.forgot_password.question"))
                     .font(.footnote)
                     .foregroundColor(theme.link)
             }
@@ -116,14 +116,14 @@ public struct LoginView: View {
 
     private var signUpButton: some View {
         HStack(spacing: 4) {
-            Text("계정이 없으신가요?")
+            Text(AuthL10n.string("auth.no_account"))
                 .font(.footnote)
                 .foregroundColor(theme.secondaryText)
 
             Button {
                 onSignUp?()
             } label: {
-                Text("회원가입")
+                Text(AuthL10n.string("auth.sign_up"))
                     .font(.footnote)
                     .fontWeight(.semibold)
                     .foregroundColor(theme.link)

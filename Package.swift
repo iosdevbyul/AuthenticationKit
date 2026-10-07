@@ -27,6 +27,9 @@ let package = Package(
                     name: "NetworkKit",
                     package: "TrisNetworkKit"
                 )
+            ],
+            resources: [
+                .process("Resources")
             ]
         ),
         .testTarget(
