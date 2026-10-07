@@ -20,6 +20,7 @@ public final class AuthenticationService: @unchecked Sendable {
     private let sessionManager: SessionManager
     private let requestEmailChangeUseCase: RequestEmailChangeUseCase
     private let confirmEmailChangeUseCase: ConfirmEmailChangeUseCase
+    private let autoLoginPreference: any AutoLoginPreference
 
     public var currentSession: Session? {
         sessionManager.currentSession
@@ -38,7 +39,13 @@ public final class AuthenticationService: @unchecked Sendable {
         guard let baseURL = AuthenticationConfiguration.shared.baseURL else {
             fatalError("AuthenticationConfiguration must be configured before using AuthenticationService.")
         }
-        self.init(baseURL: baseURL, tokenStorage: DefaultTokenStorage(), session: session)
+        self.init(
+            baseURL: baseURL,
+            tokenStorage: DefaultTokenStorage(),
+            session: session,
+            autoLoginPreference:
+                UserDefaultsAutoLoginPreference()
+        )
     }
 
     public convenience init(
@@ -46,25 +53,89 @@ public final class AuthenticationService: @unchecked Sendable {
         tokenStorage: any TokenStorage,
         session: URLSession = .shared
     ) {
-        let manager = SessionManager(tokenStorage: tokenStorage)
-        let client = URLSessionNetworkClient(
-            configuration: NetworkConfiguration(baseURL: baseURL),
+        self.init(
+            baseURL: baseURL,
+            tokenStorage: tokenStorage,
             session: session,
-            interceptor: AuthorizationRequestInterceptor(tokenProvider: manager)
+            autoLoginPreference:
+                UserDefaultsAutoLoginPreference()
         )
-        self.init(repository: NetworkAuthenticationRepository(networkClient: client), sessionManager: manager)
+    }
+
+    convenience init(
+        baseURL: URL,
+        tokenStorage: any TokenStorage,
+        session: URLSession = .shared,
+        autoLoginPreference:
+            any AutoLoginPreference
+    ) {
+        let manager = SessionManager(
+            tokenStorage: tokenStorage
+        )
+        let client = URLSessionNetworkClient(
+            configuration:
+                NetworkConfiguration(
+                    baseURL: baseURL
+                ),
+            session: session,
+            interceptor:
+                AuthorizationRequestInterceptor(
+                    tokenProvider: manager
+                )
+        )
+        self.init(
+            repository:
+                NetworkAuthenticationRepository(
+                    networkClient: client
+                ),
+            sessionManager: manager,
+            autoLoginPreference:
+                autoLoginPreference
+        )
     }
 
     public convenience init(
         repository: any AuthenticationRepository,
         tokenStorage: any TokenStorage
     ) {
-        self.init(repository: repository, sessionManager: SessionManager(tokenStorage: tokenStorage))
+        self.init(
+            repository: repository,
+            sessionManager:
+                SessionManager(
+                    tokenStorage: tokenStorage
+                ),
+            autoLoginPreference:
+                UserDefaultsAutoLoginPreference()
+        )
     }
 
-    private init(repository: any AuthenticationRepository, sessionManager: SessionManager) {
+    convenience init(
+        repository: any AuthenticationRepository,
+        tokenStorage: any TokenStorage,
+        autoLoginPreference:
+            any AutoLoginPreference
+    ) {
+        self.init(
+            repository: repository,
+            sessionManager:
+                SessionManager(
+                    tokenStorage: tokenStorage
+                ),
+            autoLoginPreference:
+                autoLoginPreference
+        )
+    }
+
+    private init(
+        repository: any AuthenticationRepository,
+        sessionManager: SessionManager,
+        autoLoginPreference:
+            any AutoLoginPreference
+    ) {
         self.repository = repository
         self.sessionManager = sessionManager
+        self.autoLoginPreference =
+            autoLoginPreference
 
         self.loginUseCase = LoginUseCase(
             repository: repository,
@@ -111,12 +182,20 @@ public final class AuthenticationService: @unchecked Sendable {
 
     public func login(
         email: String,
-        password: String
+        password: String,
+        keepSignedIn: Bool = true
     ) async throws -> Session {
-        try await loginUseCase.execute(
+        let session = try await loginUseCase.execute(
             email: email,
-            password: password
+            password: password,
+            persistSession: keepSignedIn
         )
+
+        autoLoginPreference.setEnabled(
+            keepSignedIn
+        )
+
+        return session
     }
 
     public func signUp(
@@ -132,11 +211,13 @@ public final class AuthenticationService: @unchecked Sendable {
     public func logout() async throws {
         try await repository.logout()
         try sessionManager.clearSession()
+        autoLoginPreference.setEnabled(false)
     }
 
     public func withdraw() async throws {
         try await repository.withdraw()
         try sessionManager.clearSession()
+        autoLoginPreference.setEnabled(false)
     }
 
     public func forgotPassword(
@@ -156,6 +237,7 @@ public final class AuthenticationService: @unchecked Sendable {
             newPassword: newPassword
         )
         try sessionManager.clearSession()
+        autoLoginPreference.setEnabled(false)
     }
 
     public func currentUser() async throws -> User {
@@ -182,9 +264,15 @@ public final class AuthenticationService: @unchecked Sendable {
     public func resetPassword(token: String, newPassword: String) async throws {
         try await ResetPasswordUseCase(repository: repository).execute(token: token, newPassword: newPassword)
         try sessionManager.clearSession()
+        autoLoginPreference.setEnabled(false)
     }
 
     public func restoreSession() throws {
+        guard autoLoginPreference.isEnabled else {
+            try sessionManager.clearSession()
+            return
+        }
+
         try sessionManager.restoreSession()
     }
     
@@ -230,6 +318,7 @@ public final class AuthenticationService: @unchecked Sendable {
 
         if session.isCurrent {
             try sessionManager.clearSession()
+            autoLoginPreference.setEnabled(false)
         }
     }
 
@@ -240,5 +329,6 @@ public final class AuthenticationService: @unchecked Sendable {
     public func logoutAllSessions() async throws {
         try await logoutAllSessionsUseCase.execute()
         try sessionManager.clearSession()
+        autoLoginPreference.setEnabled(false)
     }
 }
