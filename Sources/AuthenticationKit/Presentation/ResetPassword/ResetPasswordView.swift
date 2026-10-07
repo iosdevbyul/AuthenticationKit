@@ -12,20 +12,20 @@ public struct ResetPasswordView: View {
 
     public var body: some View {
         Form {
-            SecureField("재설정 토큰", text: $viewModel.token)
+            SecureField(AuthL10n.string("auth.reset.token"), text: $viewModel.token)
                 .textInputAutocapitalization(.never)
                 .autocorrectionDisabled()
-            SecureField("새 비밀번호 (7~20자)", text: $viewModel.newPassword)
-            SecureField("새 비밀번호 확인", text: $viewModel.passwordConfirmation)
+            SecureField(AuthL10n.string("auth.reset.new_password"), text: $viewModel.newPassword)
+            SecureField(AuthL10n.string("auth.reset.confirm_password"), text: $viewModel.passwordConfirmation)
             if let errorMessage = viewModel.errorMessage {
                 Text(errorMessage).foregroundStyle(.red)
             }
             if viewModel.isSuccess {
-                Text("비밀번호가 재설정되었습니다. 새 비밀번호로 로그인해주세요.")
+                Text(AuthL10n.string("auth.reset.success"))
             }
-            Button("비밀번호 재설정") { viewModel.resetPassword() }
+            Button(AuthL10n.string("auth.reset_password")) { viewModel.resetPassword() }
                 .disabled(viewModel.isLoading)
         }
-        .navigationTitle("Reset Password")
+        .navigationTitle(AuthL10n.string("auth.reset_password"))
     }
 }

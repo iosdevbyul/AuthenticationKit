@@ -58,12 +58,12 @@ public struct SessionManagementView: View {
 
     private var header: some View {
         VStack(spacing: 8) {
-            Text("로그인 세션")
+            Text(AuthL10n.string("auth.session.title"))
                 .font(.title)
                 .fontWeight(.bold)
                 .foregroundColor(theme.text)
 
-            Text("현재 로그인되어 있는 기기와 세션을 관리할 수 있습니다.")
+            Text(AuthL10n.string("auth.session.subtitle"))
                 .font(.subheadline)
                 .foregroundColor(theme.secondaryText)
                 .multilineTextAlignment(.center)
@@ -92,13 +92,13 @@ public struct SessionManagementView: View {
                 ) {
                     HStack(spacing: 8) {
                         Text(
-                            session.deviceName ?? "알 수 없는 기기"
+                            session.deviceName ?? AuthL10n.string("auth.session.unknown_device")
                         )
                         .font(.headline)
                         .foregroundColor(theme.text)
 
                         if session.isCurrent {
-                            Text("현재 세션")
+                            Text(AuthL10n.string("auth.session.current"))
                                 .font(.caption)
                                 .fontWeight(.semibold)
                                 .foregroundColor(theme.primary)
@@ -107,7 +107,7 @@ public struct SessionManagementView: View {
 
                     if let startedAt = session.startedAt {
                         Text(
-                            "로그인 \(formattedDate(startedAt))"
+                            AuthL10n.format(\n                                "auth.session.logged_in",\n                                formattedDate(startedAt)\n                            )
                         )
                         .font(.footnote)
                         .foregroundColor(theme.secondaryText)
@@ -115,14 +115,14 @@ public struct SessionManagementView: View {
 
                     if let lastRefreshedAt = session.lastRefreshedAt {
                         Text(
-                            "최근 갱신 \(formattedDate(lastRefreshedAt))"
+                            AuthL10n.format(\n                                "auth.session.last_refreshed",\n                                formattedDate(lastRefreshedAt)\n                            )
                         )
                         .font(.footnote)
                         .foregroundColor(theme.secondaryText)
                     }
 
                     Text(
-                        "만료 \(formattedDate(session.expiresAt))"
+                        AuthL10n.format(\n                            "auth.session.expires",\n                            formattedDate(session.expiresAt)\n                        )
                     )
                     .font(.footnote)
                     .foregroundColor(theme.secondaryText)
@@ -140,8 +140,8 @@ public struct SessionManagementView: View {
             } label: {
                 Text(
                     session.isCurrent
-                        ? "이 세션에서 로그아웃"
-                        : "세션 로그아웃"
+                        ? AuthL10n.string("auth.session.logout_current")
+                        : AuthL10n.string("auth.session.logout")
                 )
                 .font(.footnote)
                 .fontWeight(.semibold)
@@ -167,7 +167,7 @@ public struct SessionManagementView: View {
         VStack(spacing: 12) {
 
             AuthenticationButton(
-                title: "다른 세션 모두 로그아웃",
+                title: AuthL10n.string("auth.session.logout_others"),
                 isEnabled: hasOtherSessions,
                 isLoading: viewModel.isLoading,
                 theme: theme
@@ -182,7 +182,7 @@ public struct SessionManagementView: View {
                     await viewModel.logoutAllSessions()
                 }
             } label: {
-                Text("모든 세션 로그아웃")
+                Text(AuthL10n.string("auth.session.logout_all"))
                     .font(.headline)
                     .foregroundColor(theme.error)
                     .frame(maxWidth: .infinity)
@@ -202,7 +202,7 @@ public struct SessionManagementView: View {
     }
 
     private var emptyView: some View {
-        Text("활성화된 세션이 없습니다.")
+        Text(AuthL10n.string("auth.session.empty"))
             .font(.subheadline)
             .foregroundColor(theme.secondaryText)
             .frame(
@@ -241,7 +241,7 @@ public struct SessionManagementView: View {
     private static let dateFormatter: DateFormatter = {
         let formatter = DateFormatter()
 
-        formatter.locale = Locale.current
+        formatter.locale = AuthL10n.locale
         formatter.dateStyle = .medium
         formatter.timeStyle = .short
 

@@ -19,11 +19,11 @@ public final class ResetPasswordViewModel: ObservableObject {
     public func resetPassword() {
         guard !isLoading else { return }
         guard !token.isEmpty, (7...20).contains(newPassword.count), newPassword.utf8.count <= 72 else {
-            errorMessage = "재설정 토큰과 7~20자의 새 비밀번호를 입력해주세요."
+            errorMessage = AuthL10n.string("validation.reset_password")
             return
         }
         guard newPassword == passwordConfirmation else {
-            errorMessage = "비밀번호가 일치하지 않습니다."
+            errorMessage = AuthL10n.string("validation.password.mismatch")
             return
         }
         isLoading = true
@@ -37,7 +37,7 @@ public final class ResetPasswordViewModel: ObservableObject {
                 onResetPasswordSuccess?()
             } catch {
                 isLoading = false
-                errorMessage = error.localizedDescription
+                errorMessage = AuthenticationErrorMessageMapper.message(for: error, context: .resetPassword)
             }
         }
     }

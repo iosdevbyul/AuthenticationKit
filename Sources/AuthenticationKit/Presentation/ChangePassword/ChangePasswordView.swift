@@ -34,22 +34,22 @@ public struct ChangePasswordView: View {
 
                 VStack(spacing: 16) {
                     AuthenticationSecureField(
-                        title: "현재 비밀번호",
-                        placeholder: "현재 비밀번호를 입력해주세요.",
+                        title: AuthL10n.string("auth.change.current_password"),
+                        placeholder: AuthL10n.string("auth.change.current_password.placeholder"),
                         text: $viewModel.currentPassword,
                         theme: theme
                     )
 
                     AuthenticationSecureField(
-                        title: "새 비밀번호",
-                        placeholder: "새 비밀번호를 입력해주세요.",
+                        title: AuthL10n.string("auth.change.new_password"),
+                        placeholder: AuthL10n.string("auth.change.new_password.placeholder"),
                         text: $viewModel.newPassword,
                         theme: theme
                     )
 
                     AuthenticationSecureField(
-                        title: "새 비밀번호 확인",
-                        placeholder: "새 비밀번호를 다시 입력해주세요.",
+                        title: AuthL10n.string("auth.change.confirm_password"),
+                        placeholder: AuthL10n.string("auth.change.confirm_password.placeholder"),
                         text: $viewModel.passwordConfirmation,
                         theme: theme
                     )
@@ -66,7 +66,7 @@ public struct ChangePasswordView: View {
                 }
 
                 AuthenticationButton(
-                    title: "비밀번호 변경",
+                    title: AuthL10n.string("auth.change.title"),
                     isEnabled: canChangePassword,
                     isLoading: viewModel.isLoading,
                     theme: theme
@@ -88,12 +88,12 @@ public struct ChangePasswordView: View {
 
     private var header: some View {
         VStack(spacing: 8) {
-            Text("비밀번호 변경")
+            Text(AuthL10n.string("auth.change.title"))
                 .font(.title)
                 .fontWeight(.bold)
                 .foregroundColor(theme.text)
 
-            Text("새로운 비밀번호를 입력해주세요.")
+            Text(AuthL10n.string("auth.change.subtitle"))
                 .font(.subheadline)
                 .foregroundColor(theme.secondaryText)
         }

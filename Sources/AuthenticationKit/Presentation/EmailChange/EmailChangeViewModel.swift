@@ -41,12 +41,12 @@ public final class EmailChangeViewModel: ObservableObject {
         }
 
         guard !currentPassword.isEmpty else {
-            errorMessage = "현재 비밀번호를 입력해주세요."
+            errorMessage = AuthL10n.string("validation.current_password.required")
             return
         }
 
         guard !newEmail.isEmpty else {
-            errorMessage = "새 이메일을 입력해주세요."
+            errorMessage = AuthL10n.string("validation.email.required")
             return
         }
 
@@ -54,7 +54,7 @@ public final class EmailChangeViewModel: ObservableObject {
               newEmail.contains("@"),
               newEmail.contains(".")
         else {
-            errorMessage = "이메일 주소를 다시 확인해주세요."
+            errorMessage = AuthL10n.string("validation.email.invalid")
             return
         }
 
@@ -72,7 +72,7 @@ public final class EmailChangeViewModel: ObservableObject {
                 newEmail: newEmail
             )
 
-            message = "새 이메일로 인증 안내를 발송했습니다."
+            message = AuthL10n.string("auth.email_change.sent")
         } catch {
             errorMessage = AuthenticationErrorMessageMapper.message(
                 for: error,
@@ -106,11 +106,11 @@ public final class EmailChangeViewModel: ObservableObject {
             didConfirmEmailChange = true
 
             guard let user = authenticationService.currentSession?.user else {
-                message = "이메일이 변경되었습니다."
+                message = AuthL10n.string("auth.email_change.changed")
                 return
             }
 
-            message = "이메일이 변경되었습니다."
+            message = AuthL10n.string("auth.email_change.changed")
             onEmailChangeConfirmed?(user)
 
         } catch {

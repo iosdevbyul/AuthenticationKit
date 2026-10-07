@@ -28,22 +28,22 @@ public final class ChangePasswordViewModel: ObservableObject {
 
     public func changePassword() {
         guard !currentPassword.isEmpty else {
-            errorMessage = "현재 비밀번호를 입력해주세요."
+            errorMessage = AuthL10n.string("validation.current_password.required")
             return
         }
 
         guard !newPassword.isEmpty else {
-            errorMessage = "새 비밀번호를 입력해주세요."
+            errorMessage = AuthL10n.string("validation.new_password.required")
             return
         }
 
         guard !passwordConfirmation.isEmpty else {
-            errorMessage = "새 비밀번호를 한 번 더 입력해주세요."
+            errorMessage = AuthL10n.string("validation.new_password.confirm_required")
             return
         }
 
         guard newPassword == passwordConfirmation else {
-            errorMessage = "비밀번호가 일치하지 않습니다."
+            errorMessage = AuthL10n.string("validation.password.mismatch")
             return
         }
 
@@ -65,7 +65,7 @@ public final class ChangePasswordViewModel: ObservableObject {
                 onChangePasswordSuccess?()
             } catch {
                 isLoading = false
-                errorMessage = error.localizedDescription
+                errorMessage = AuthenticationErrorMessageMapper.message(\n                    for: error,\n                    context: .changePassword\n                )
             }
         }
     }
