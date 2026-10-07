@@ -59,7 +59,11 @@ public struct LoginView: View {
                     )
                 }
 
-                forgotPasswordButton
+                HStack {
+                    autoLoginButton
+                    Spacer()
+                    forgotPasswordButton
+                }
 
                 if let errorMessage = viewModel.errorMessage {
                     Text(errorMessage)
@@ -100,17 +104,44 @@ public struct LoginView: View {
         .padding(.top, 32)
     }
 
-    private var forgotPasswordButton: some View {
-        HStack {
-            Spacer()
+    private var autoLoginButton: some View {
+        Button {
+            viewModel.keepSignedIn.toggle()
+        } label: {
+            HStack(spacing: 8) {
+                Image(
+                    systemName:
+                        viewModel.keepSignedIn
+                        ? "checkmark.square.fill"
+                        : "square"
+                )
+                .foregroundColor(
+                    viewModel.keepSignedIn
+                    ? theme.primary
+                    : theme.secondaryText
+                )
 
-            Button {
-                onForgotPassword?()
-            } label: {
-                Text("비밀번호를 잊으셨나요?")
+                Text("Auto Login")
                     .font(.footnote)
-                    .foregroundColor(theme.link)
+                    .foregroundColor(theme.text)
             }
+        }
+        .buttonStyle(.plain)
+        .accessibilityLabel("Auto Login")
+        .accessibilityValue(
+            viewModel.keepSignedIn
+            ? "On"
+            : "Off"
+        )
+    }
+
+    private var forgotPasswordButton: some View {
+        Button {
+            onForgotPassword?()
+        } label: {
+            Text("비밀번호를 잊으셨나요?")
+                .font(.footnote)
+                .foregroundColor(theme.link)
         }
     }
 
