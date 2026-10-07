@@ -1,22 +1,74 @@
+import Foundation
 import XCTest
 @testable import AuthenticationKit
 
 final class AuthenticationLocalizationTests:
     XCTestCase {
 
-    func testLocalizationResourceResolves() {
-        let value =
-            AuthL10n.string(
-                "auth.login"
+    func testEnglishLocalizationUsesEnglishText() throws {
+        let bundle =
+            try localizedBundle(
+                language: "en"
             )
 
-        XCTAssertFalse(
-            value.isEmpty
+        XCTAssertEqual(
+            bundle.localizedString(
+                forKey: "auth.login",
+                value: nil,
+                table: nil
+            ),
+            "Log In"
         )
 
-        XCTAssertNotEqual(
-            value,
-            "auth.login"
+        XCTAssertEqual(
+            bundle.localizedString(
+                forKey:
+                    "auth.session.title",
+                value: nil,
+                table: nil
+            ),
+            "Login Sessions"
+        )
+    }
+
+    func testKoreanLocalizationUsesKoreanText() throws {
+        let bundle =
+            try localizedBundle(
+                language: "ko"
+            )
+
+        XCTAssertEqual(
+            bundle.localizedString(
+                forKey: "auth.login",
+                value: nil,
+                table: nil
+            ),
+            "로그인"
+        )
+
+        XCTAssertEqual(
+            bundle.localizedString(
+                forKey:
+                    "auth.session.title",
+                value: nil,
+                table: nil
+            ),
+            "로그인 세션"
+        )
+    }
+
+    private func localizedBundle(
+        language: String
+    ) throws -> Bundle {
+        let path = try XCTUnwrap(
+            Bundle.module.path(
+                forResource: language,
+                ofType: "lproj"
+            )
+        )
+
+        return try XCTUnwrap(
+            Bundle(path: path)
         )
     }
 }
