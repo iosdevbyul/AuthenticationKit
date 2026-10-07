@@ -127,11 +127,6 @@ public struct LoginView: View {
             }
         }
         .buttonStyle(.plain)
-        .accessibilityLabel(
-            viewModel.keepSignedIn
-            ? "Auto Login On"
-            : "Auto Login Off"
-        )
     }
 
     private var forgotPasswordButton: some View {
