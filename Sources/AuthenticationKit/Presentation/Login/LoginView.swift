@@ -127,11 +127,10 @@ public struct LoginView: View {
             }
         }
         .buttonStyle(.plain)
-        .accessibilityLabel("Auto Login")
-        .accessibilityValue(
+        .accessibilityLabel(
             viewModel.keepSignedIn
-            ? "On"
-            : "Off"
+            ? "Auto Login On"
+            : "Auto Login Off"
         )
     }
 
