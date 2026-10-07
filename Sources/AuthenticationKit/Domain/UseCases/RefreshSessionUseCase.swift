@@ -14,7 +14,7 @@ public struct RefreshSessionUseCase: Sendable {
             throw AuthenticationError.invalidCredentials
         }
         let session = try await repository.refresh(refreshToken: token)
-        try sessionManager.setSession(session)
+        try sessionManager.replaceSession(session)
         return session
     }
 }
