@@ -78,3 +78,4 @@ jobs:
             -configuration Debug \
             CODE_SIGNING_ALLOWED=NO \
             test
+
