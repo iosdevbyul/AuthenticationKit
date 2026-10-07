@@ -28,7 +28,7 @@ public final class LoginViewModel: ObservableObject {
 
     public func login() {
         guard !email.isEmpty, !password.isEmpty else {
-            errorMessage = "이메일과 비밀번호를 입력해주세요."
+            errorMessage = AuthL10n.string("validation.email_password.required")
             return
         }
 

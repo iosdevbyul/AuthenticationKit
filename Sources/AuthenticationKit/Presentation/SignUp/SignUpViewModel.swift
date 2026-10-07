@@ -33,27 +33,27 @@ public final class SignUpViewModel: ObservableObject {
             .lowercased()
 
         guard !normalizedEmail.isEmpty else {
-            errorMessage = "이메일을 입력해주세요."
+            errorMessage = AuthL10n.string("validation.email.required")
             return
         }
 
         guard !password.isEmpty else {
-            errorMessage = "비밀번호를 입력해주세요."
+            errorMessage = AuthL10n.string("validation.password.required")
             return
         }
 
         guard password.count >= 7 && password.count <= 20 else {
-            errorMessage = "비밀번호는 7자 이상 20자 이하로 입력해주세요."
+            errorMessage = AuthL10n.string("validation.password.length")
             return
         }
 
         guard !passwordConfirmation.isEmpty else {
-            errorMessage = "비밀번호를 한 번 더 입력해주세요."
+            errorMessage = AuthL10n.string("validation.password.confirm_required")
             return
         }
 
         guard password == passwordConfirmation else {
-            errorMessage = "비밀번호가 일치하지 않습니다."
+            errorMessage = AuthL10n.string("validation.password.mismatch")
             return
         }
 

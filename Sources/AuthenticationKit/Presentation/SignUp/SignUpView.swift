@@ -32,8 +32,8 @@ public struct SignUpView: View {
 
                 VStack(spacing: 16) {
                     AuthenticationTextField(
-                        title: "이메일",
-                        placeholder: "이메일을 입력해주세요.",
+                        title: AuthL10n.string("auth.email"),
+                        placeholder: AuthL10n.string("auth.email.placeholder"),
                         text: $viewModel.email,
                         keyboardType: .emailAddress,
                         textContentType: .emailAddress,
@@ -43,15 +43,15 @@ public struct SignUpView: View {
                     )
 
                     AuthenticationSecureField(
-                        title: "비밀번호",
-                        placeholder: "비밀번호를 입력해주세요.",
+                        title: AuthL10n.string("auth.password"),
+                        placeholder: AuthL10n.string("auth.password.placeholder"),
                         text: $viewModel.password,
                         theme: theme
                     )
 
                     AuthenticationSecureField(
-                        title: "비밀번호 확인",
-                        placeholder: "비밀번호를 다시 입력해주세요.",
+                        title: AuthL10n.string("auth.password.confirm"),
+                        placeholder: AuthL10n.string("auth.password.confirm.placeholder"),
                         text: $viewModel.passwordConfirmation,
                         theme: theme
                     )
@@ -68,7 +68,7 @@ public struct SignUpView: View {
                 }
 
                 AuthenticationButton(
-                    title: "회원가입",
+                    title: AuthL10n.string("auth.sign_up"),
                     isEnabled: canSignUp,
                     isLoading: viewModel.isLoading,
                     theme: theme
@@ -93,12 +93,12 @@ public struct SignUpView: View {
 
     private var header: some View {
         VStack(spacing: 8) {
-            Text("회원가입")
+            Text(AuthL10n.string("auth.sign_up"))
                 .font(.title)
                 .fontWeight(.bold)
                 .foregroundColor(theme.text)
 
-            Text("계정을 만들어주세요.")
+            Text(AuthL10n.string("auth.sign_up.subtitle"))
                 .font(.subheadline)
                 .foregroundColor(theme.secondaryText)
         }

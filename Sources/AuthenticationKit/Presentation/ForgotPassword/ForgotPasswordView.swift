@@ -33,8 +33,8 @@ public struct ForgotPasswordView: View {
                 header
 
                 AuthenticationTextField(
-                    title: "이메일",
-                    placeholder: "이메일을 입력해주세요.",
+                    title: AuthL10n.string("auth.email"),
+                    placeholder: AuthL10n.string("auth.email.placeholder"),
                     text: $viewModel.email,
                     keyboardType: .emailAddress,
                     textContentType: .emailAddress,
@@ -58,7 +58,7 @@ public struct ForgotPasswordView: View {
                 }
 
                 AuthenticationButton(
-                    title: "비밀번호 재설정",
+                    title: AuthL10n.string("auth.reset_password"),
                     isEnabled: !viewModel.email.isEmpty,
                     isLoading: viewModel.isLoading,
                     theme: theme
@@ -74,12 +74,12 @@ public struct ForgotPasswordView: View {
 
     private var header: some View {
         VStack(spacing: 8) {
-            Text("비밀번호 찾기")
+            Text(AuthL10n.string("auth.forgot_password.title"))
                 .font(.title)
                 .fontWeight(.bold)
                 .foregroundColor(theme.text)
 
-            Text("가입한 이메일로 비밀번호 재설정 안내를 보내드립니다.")
+            Text(AuthL10n.string("auth.forgot_password.subtitle"))
                 .font(.subheadline)
                 .foregroundColor(theme.secondaryText)
                 .multilineTextAlignment(.center)
@@ -88,10 +88,7 @@ public struct ForgotPasswordView: View {
     }
 
     private var successMessage: some View {
-        Text("""
-            입력한 이메일이 가입된 계정이라면
-            비밀번호 재설정 안내 메일이 전송됩니다.
-            """)
+        Text(AuthL10n.string("auth.forgot_password.success"))
             .font(.footnote)
             .foregroundColor(theme.primary)
             .frame(

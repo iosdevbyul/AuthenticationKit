@@ -28,7 +28,7 @@ public final class ForgotPasswordViewModel: ObservableObject {
 
     public func forgotPassword() {
         guard !email.isEmpty else {
-            errorMessage = "이메일을 입력해주세요."
+            errorMessage = AuthL10n.string("validation.email.required")
             return
         }
 
@@ -52,7 +52,7 @@ public final class ForgotPasswordViewModel: ObservableObject {
 
             } catch {
                 isLoading = false
-                errorMessage = error.localizedDescription
+                errorMessage = AuthenticationErrorMessageMapper.message(\n                    for: error,\n                    context: .forgotPassword\n                )
             }
         }
     }
