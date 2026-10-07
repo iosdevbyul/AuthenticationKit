@@ -105,7 +105,7 @@ public final class AuthenticationService: @unchecked Sendable {
                     tokenStorage: tokenStorage
                 ),
             autoLoginPreference:
-                UserDefaultsAutoLoginPreference()
+                InMemoryAutoLoginPreference()
         )
     }
 
