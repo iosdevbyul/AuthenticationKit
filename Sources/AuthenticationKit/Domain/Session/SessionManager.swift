@@ -12,6 +12,7 @@ public final class SessionManager: @unchecked Sendable {
 
     private let lock = NSLock()
     private var session: Session?
+    private var persistsCurrentSession = false
 
     public var currentSession: Session? {
         lock.lock()
@@ -27,10 +28,33 @@ public final class SessionManager: @unchecked Sendable {
         self.tokenStorage = tokenStorage
     }
 
-    public func setSession(_ session: Session) throws {
+    public func setSession(
+        _ session: Session,
+        persist: Bool = true
+    ) throws {
         lock.lock()
         defer { lock.unlock() }
-        try tokenStorage.save(session: session)
+
+        if persist {
+            try tokenStorage.save(session: session)
+        } else {
+            try tokenStorage.clear()
+        }
+
+        self.session = session
+        persistsCurrentSession = persist
+    }
+
+    public func replaceSession(
+        _ session: Session
+    ) throws {
+        lock.lock()
+        defer { lock.unlock() }
+
+        if persistsCurrentSession {
+            try tokenStorage.save(session: session)
+        }
+
         self.session = session
     }
 
@@ -42,14 +66,18 @@ public final class SessionManager: @unchecked Sendable {
         guard session == expectedSession, user.id == expectedSession.user.id else { return }
         let updated = Session(user: user, accessToken: expectedSession.accessToken,
                               refreshToken: expectedSession.refreshToken)
-        try tokenStorage.save(session: updated)
+        if persistsCurrentSession {
+            try tokenStorage.save(session: updated)
+        }
         session = updated
     }
 
     public func restoreSession() throws {
         lock.lock()
         defer { lock.unlock() }
+
         session = try tokenStorage.loadSession()
+        persistsCurrentSession = session != nil
     }
 
     public func clearSession() throws {
@@ -57,5 +85,6 @@ public final class SessionManager: @unchecked Sendable {
         defer { lock.unlock() }
         try tokenStorage.clear()
         session = nil
+        persistsCurrentSession = false
     }
 }

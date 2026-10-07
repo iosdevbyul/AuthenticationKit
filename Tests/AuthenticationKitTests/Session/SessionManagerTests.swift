@@ -33,6 +33,32 @@ struct SessionManagerTests {
     }
 
     @Test
+    func nonPersistentSessionIsNotStored() throws {
+        let storage = InMemoryTokenStorage()
+        let manager = SessionManager(
+            tokenStorage: storage
+        )
+
+        let session = Session(
+            user: User(
+                id: "user-1",
+                email: "test@test.com"
+            ),
+            accessToken: "access-token",
+            refreshToken: "refresh-token"
+        )
+
+        try manager.setSession(
+            session,
+            persist: false
+        )
+
+        #expect(manager.currentSession == session)
+        #expect(manager.isAuthenticated)
+        #expect(try storage.loadSession() == nil)
+    }
+
+    @Test
     func restoreSessionLoadsStoredSession() throws {
         let storage = InMemoryTokenStorage()
 

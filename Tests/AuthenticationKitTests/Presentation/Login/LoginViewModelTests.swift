@@ -158,6 +158,63 @@ struct LoginViewModelTests {
         #expect(viewModel.isLoading)
     }
 
+    @Test
+    func autoLoginOffKeepsSessionOnlyInMemory() async throws {
+        let repository = MockAuthenticationRepository()
+        let storage = InMemoryTokenStorage()
+
+        let authenticationService = AuthenticationService(
+            repository: repository,
+            tokenStorage: storage
+        )
+
+        let viewModel = LoginViewModel(
+            authenticationService: authenticationService
+        )
+
+        viewModel.email = "test@test.com"
+        viewModel.password = "1234"
+        viewModel.keepSignedIn = false
+
+        viewModel.login()
+
+        try await Task.sleep(
+            nanoseconds: 100_000_000
+        )
+
+        #expect(authenticationService.isAuthenticated)
+        #expect(try storage.loadSession() == nil)
+    }
+
+    @Test
+    func autoLoginOnPersistsSession() async throws {
+        let repository = MockAuthenticationRepository()
+        let storage = InMemoryTokenStorage()
+
+        let authenticationService = AuthenticationService(
+            repository: repository,
+            tokenStorage: storage
+        )
+
+        let viewModel = LoginViewModel(
+            authenticationService: authenticationService
+        )
+
+        viewModel.email = "test@test.com"
+        viewModel.password = "1234"
+        viewModel.keepSignedIn = true
+
+        viewModel.login()
+
+        try await Task.sleep(
+            nanoseconds: 100_000_000
+        )
+
+        #expect(
+            try storage.loadSession() != nil
+        )
+    }
+
     private func makeViewModel() -> LoginViewModel {
         let repository = MockAuthenticationRepository()
         let storage = InMemoryTokenStorage()

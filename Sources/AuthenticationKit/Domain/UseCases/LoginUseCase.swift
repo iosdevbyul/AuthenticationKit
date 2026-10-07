@@ -21,14 +21,18 @@ public struct LoginUseCase: Sendable {
 
     public func execute(
         email: String,
-        password: String
+        password: String,
+        persistSession: Bool = true
     ) async throws -> Session {
         let session = try await repository.login(
             email: email,
             password: password
         )
 
-        try sessionManager.setSession(session)
+        try sessionManager.setSession(
+            session,
+            persist: persistSession
+        )
 
         return session
     }

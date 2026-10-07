@@ -12,6 +12,7 @@ public final class LoginViewModel: ObservableObject {
 
     @Published public var email = ""
     @Published public var password = ""
+    @Published public var keepSignedIn = false
 
     @Published public private(set) var isLoading = false
     @Published public private(set) var errorMessage: String?
@@ -47,7 +48,8 @@ public final class LoginViewModel: ObservableObject {
 
                 let session = try await authenticationService.login(
                     email: normalizedEmail,
-                    password: password
+                    password: password,
+                    keepSignedIn: keepSignedIn
                 )
 
                 isLoading = false
