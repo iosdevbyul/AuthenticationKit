@@ -31,3 +31,32 @@ final class UserDefaultsAutoLoginPreference:
         )
     }
 }
+
+
+final class InMemoryAutoLoginPreference:
+    AutoLoginPreference,
+    @unchecked Sendable {
+
+    private let lock = NSLock()
+    private var value: Bool
+
+    init(
+        isEnabled: Bool = false
+    ) {
+        self.value = isEnabled
+    }
+
+    var isEnabled: Bool {
+        lock.lock()
+        defer { lock.unlock() }
+        return value
+    }
+
+    func setEnabled(
+        _ isEnabled: Bool
+    ) {
+        lock.lock()
+        defer { lock.unlock() }
+        value = isEnabled
+    }
+}
