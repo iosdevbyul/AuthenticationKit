@@ -121,7 +121,7 @@ public struct LoginView: View {
                     : theme.secondaryText
                 )
 
-                Text("Auto Login")
+                Text(NSLocalizedString("login.auto_login", bundle: .module, comment: "Keep the user signed in"))
                     .font(.footnote)
                     .foregroundColor(theme.text)
             }

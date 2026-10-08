@@ -4,6 +4,7 @@ import PackageDescription
 
 let package = Package(
     name: "AuthenticationKit",
+    defaultLocalization: "en",
     platforms: [
         .iOS(.v13)
     ],
@@ -27,7 +28,8 @@ let package = Package(
                     name: "NetworkKit",
                     package: "TrisNetworkKit"
                 )
-            ]
+            ],
+            resources: [.process("Resources")]
         ),
         .testTarget(
             name: "AuthenticationKitTests",
