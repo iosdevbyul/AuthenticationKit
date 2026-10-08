@@ -45,6 +45,15 @@ Add the following repository as a Swift Package in Xcode:
 https://github.com/iosdevbyul/AuthenticationKit
 ```
 
+For a `Package.swift` dependency, use the released semantic version:
+
+```swift
+.package(
+    url: "https://github.com/iosdevbyul/AuthenticationKit",
+    from: "0.2.0"
+)
+```
+
 Link the `AuthenticationKit` product to your app target, then import it:
 
 ```swift
